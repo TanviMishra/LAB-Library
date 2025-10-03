@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LABrary</title>
+    <link rel="icon" type="image/webp" href="Content/Images/LAB-favicon-resized.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="filter-container">
+        <div class="library-text">
+            A
+            <img src="Content/Images/LAB-favicon.webp" alt="LABrary" height: 24px;">
+            Library of 
+            <span class="dropdown-selected" id="dropdown-selected">Experiments</span>
+            <span class="dropdown-menu" id="dropdown-menu">
+                <span class="dropdown-option selected" data-value="">All Experiments</span>
+            </span>
+        </div>
+        <p style="width: 60%;">At the <a href="https://www.rockwellgroup.com/lab">LAB at Rockwell Group</a>, we have a robust R&D practice that explores new technologies and materials in service of building our creative practice, improving client facing work and nurturing curiosities. This library is a collection of some of our experiments.</p>
+    </div>
+    
+    <div id="projects-container">
+        <!-- Projects will be dynamically loaded here -->
+    </div>
+
+    <script src="table.js"></script>
+</body>
+</html>

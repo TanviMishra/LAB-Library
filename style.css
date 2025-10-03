@@ -1,0 +1,203 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+}
+
+* {
+    font-family: Arial, sans-serif;
+}
+a{
+    text-decoration: none;
+    color: #333;
+    font-style: normal;
+}
+a:hover{
+    font-style: italic;
+    color: #6b909d;
+}
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+}
+
+.filter-container {
+    max-width: 80vw;
+    margin: 60px auto 30px auto;
+    padding: 0 20px;
+    text-align: left;
+}
+
+.library-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: Arial, sans-serif;
+}
+
+.library-text img {
+    height: 1em;
+    width: auto;
+    vertical-align: middle;
+}
+
+.dropdown-selected {
+    color: #333;
+    display: inline;
+    border-bottom: 1px solid #333;
+    font-style: italic;
+    cursor: pointer;
+}
+
+.dropdown-selected:hover {
+    color: #6b909d;
+}
+
+.dropdown-menu {
+    display: none;
+    white-space: nowrap;
+    margin-left: 8px;
+}
+
+.dropdown-menu.show {
+    display: block;
+}
+
+.dropdown-option {
+    cursor: pointer;
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    font-style: normal;
+    transition: all 0.2s ease;
+    display: inline;
+    border-bottom: 1px solid transparent;
+    margin: 0 4px;
+}
+
+.dropdown-option:hover {
+    font-style: italic;
+    color: #6b909d;
+    border-bottom: 1px solid #333;
+}
+
+.dropdown-option.selected {
+    background: #f0f0f0;
+    color: #333;
+    font-weight: bold;
+}
+
+#projects-container {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 100px;
+    max-width: 80vw;
+    margin: 50px auto 150px auto;
+}
+
+.project-card {
+    /* Card styling handled by grid layout */
+    display: block;
+}
+
+.project-name {
+    margin: 15px 0 0 0;
+    color: #333;
+    font-size: 1em;
+    font-weight: normal;
+    font-family: Arial, sans-serif;
+    text-align: left;
+    text-transform: uppercase;
+}
+
+.project-meta {
+    margin: 8px 0 0 0;
+    font-size: 0.75em;
+    color: #666;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.project-team {
+    text-align: left;
+    flex: 1;
+}
+
+.project-year {
+    text-align: right;
+    flex: 1;
+}
+
+.project-video-container {
+    width: 100%;
+    aspect-ratio: 1;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+
+.project-video, .project-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Specific styling for iframe videos */
+.project-video[src*="dropbox.com"] {
+    border: none;
+}
+
+.project-video p {
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    word-break: break-all;
+}
+
+
+.no-video {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+}
+
+.loading-indicator {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+/* Responsive design */
+@media (max-width: 1200px) {
+    #projects-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 900px) {
+    #projects-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    #projects-container {
+        grid-template-columns: 1fr;
+    }
+    
+    body {
+        margin: 10px;
+    }
+}

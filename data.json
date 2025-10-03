@@ -1,0 +1,220 @@
+{
+  "records": [
+    {
+      "fields": {
+        "Project": "Gaze Tracking",
+        "Brief": "",
+        "Team": ["Philip"],
+        "Tags": ["Gestures", "Screens"],
+        "Year": 2025,
+        "Video": "Content/Videos/Gaze Tracking.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Holographic Bubble",
+        "Brief": "",
+        "Team": ["DT"],
+        "Tags": ["Screens", "Optics"],
+        "Year": 2025,
+        "Video": "Content/Videos/Holographic Bubble.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Illuminated Dress",
+        "Brief": "",
+        "Team": ["Aaron"],
+        "Tags": ["Materials"],
+        "Year": 2025,
+        "Video": "Content/Videos/Illuminated Dress.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Interactive Plane",
+        "Brief": "",
+        "Team": ["Jeff"],
+        "Tags": ["Gestures"],
+        "Year": 2025,
+        "Video": "Content/Videos/Interactive Plane.MOV",
+        "Image": ""
+      },
+      "active": false
+    },
+    {
+      "fields": {
+        "Project": "LED Mesh",
+        "Brief": "",
+        "Team": ["Aaron"],
+        "Tags": ["Materials"],
+        "Year": 2025,
+        "Video": "Content/Videos/Led Mesh.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Lens Array",
+        "Brief": "",
+        "Team": ["Sam"],
+        "Tags": ["Optics", "Materials"],
+        "Year": 2025,
+        "Video": "Content/Videos/Lens Array.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Lenses",
+        "Brief": "",
+        "Team": ["Sam"],
+        "Tags": ["Materials", "Optics"],
+        "Year": 2025,
+        "Video": "Content/Videos/Lenses.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Light and Optics",
+        "Brief": "",
+        "Team": ["Jeff"],
+        "Tags": ["Optics"],
+        "Year": 2025,
+        "Video": "Content/Videos/Light and Optics.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Pose to Point",
+        "Brief": "",
+        "Team": ["Gabe"],
+        "Tags": ["Gestures"],
+        "Year": 2025,
+        "Video": "Content/Videos/Pose to Point.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Skylight",
+        "Brief": "",
+        "Team": ["Aaron"],
+        "Tags": ["Optics"],
+        "Year": 2025,
+        "Video": "Content/Videos/Skylight.mov",
+        "Image": ""
+      },
+      "active": false
+    },
+    {
+      "fields": {
+        "Project": "Dichroic Pixels",
+        "Brief": "Servos and stuff",
+        "Team": ["Aaron", "DT"],
+        "Tags": ["Optics", "Materials"],
+        "Year": 2024,
+        "Video": "Content/Videos/Dichroic Pixels.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Fiber Optics",
+        "Brief": "",
+        "Team": ["Aaron", "Sam", "Andy"],
+        "Tags": ["Optics", "Materials"],
+        "Year": 2024,
+        "Video": "",
+        "Image": ""
+      },
+      "active": false
+    },
+    {
+      "fields": {
+        "Project": "Hologauze",
+        "Brief": "",
+        "Team": ["Jeff", "Casey"],
+        "Tags": ["Screens"],
+        "Year": 2024,
+        "Video": "Content/Videos/Hologauze.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Interactive Tabletop",
+        "Brief": "",
+        "Team": ["Casey"],
+        "Tags": ["Gestures"],
+        "Year": 2024,
+        "Video": "Content/Videos/Interactive Tabletop.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Jeff Splatbieri",
+        "Brief": "Gaussian Splat",
+        "Team": ["Philip", "Jeff", "Aaron"],
+        "Tags": ["Screens"],
+        "Year": 2024,
+        "Video": "Content/Videos/Jeff Splatbieri.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Lab Logo",
+        "Brief": "",
+        "Team": ["Sam"],
+        "Tags": ["Screens"],
+        "Year": 2024,
+        "Video": "Content/Videos/Lab Logo.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Mirror and Lens",
+        "Brief": "",
+        "Team": ["Sam"],
+        "Tags": ["Optics", "Materials"],
+        "Year": 2024,
+        "Video": "Content/Videos/Mirror and Lens.MOV",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Stream Diffusion",
+        "Brief": "",
+        "Team": ["Sam", "Casey"],
+        "Tags": ["Screens", "Gestures"],
+        "Year": 2024,
+        "Video": "Content/Videos/Stream Diffusion.MOV",
+        "Image": ""
+      },
+      "active": true
+    }
+  ]
+}
