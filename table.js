@@ -59,7 +59,6 @@ function displayProjects(records) {
             mediaHTML = `
                 <video class="project-video" 
                        preload="metadata" 
-                       muted 
                        loop 
                        playsinline>
                     <source src="${videoField}" type="video/mp4">
@@ -67,6 +66,30 @@ function displayProjects(records) {
                     Your browser doesn't support video.
                 </video>
             `;
+        } else if (projectName) {
+            // Fallback: try to dynamically link to video files
+            const videoExtensions = ['.mp4', '.MOV', '.mov', '.MP4'];
+            let videoFound = false;
+            
+            for (const ext of videoExtensions) {
+                const videoPath = `Content/Videos/${projectName}${ext}`;
+                mediaHTML = `
+                    <video class="project-video" 
+                           preload="metadata" 
+                           loop 
+                           playsinline>
+                        <source src="${videoPath}" type="video/mp4">
+                        <source src="${videoPath}" type="video/quicktime">
+                        Your browser doesn't support video.
+                    </video>
+                `;
+                videoFound = true;
+                break; // Use the first extension found
+            }
+            
+            if (!videoFound) {
+                mediaHTML = `<div class="no-video">No video available</div>`;
+            }
         }
         
         // Fallback to image if no video
@@ -79,10 +102,11 @@ function displayProjects(records) {
             mediaHTML = `<div class="no-video">No media available</div>`;
         }
         
-        // Get team and year for display
+        // Get team and made with for display
         const team = record.fields["Team"] || [];
-        const year = record.fields["Year"] || "";
+        const madeWith = record.fields["Made with"] || [];
         const teamText = team.join(", ");
+        const madeWithText = madeWith.join(", ");
         
         projectDiv.innerHTML = `
             <div class="project-video-container">
@@ -90,8 +114,8 @@ function displayProjects(records) {
             </div>
             <h3 class="project-name">${projectName}</h3>
             <div class="project-meta">
+                <div class="project-made-with">${madeWithText}</div>
                 <div class="project-team">Made by ${teamText}</div>
-                <div class="project-year">${year}</div>
             </div>
         `;
         
@@ -126,15 +150,18 @@ function populateTagFilter(records) {
     // Clear existing options
     dropdownMenu.innerHTML = '';
     
-    // Get all tags and sort them, then add "All Experiments" at the end
-    const sortedTags = Array.from(allTags).sort();
-    const allOptions = [...sortedTags, "All Experiments"];
+    // Define the specific order for tags
+    const tagOrder = ["Experiments", "Gestures", "Materials", "Optics", "Screens", "Sounds"];
     
-    // Filter out currently selected option
-    const filteredOptions = allOptions.filter(option => {
-        const optionValue = option === "All Experiments" ? "" : option;
-        return optionValue !== currentFilter;
-    });
+    // Always include "Experiments" as the first option (shows all projects)
+    const allOptions = ["Experiments"];
+    
+    // Add other tags that exist in the data, in the specified order
+    const existingTags = tagOrder.slice(1).filter(tag => allTags.has(tag));
+    allOptions.push(...existingTags);
+    
+    // Don't filter out the currently selected option - show all options in dropdown
+    const filteredOptions = allOptions;
     
     // Add slash before first option if there are any options
     if (filteredOptions.length > 0) {
@@ -150,8 +177,15 @@ function populateTagFilter(records) {
     filteredOptions.forEach((option, index) => {
         const optionElement = document.createElement("span");
         optionElement.className = "dropdown-option";
-        optionElement.setAttribute("data-value", option === "All Experiments" ? "" : option);
+        optionElement.setAttribute("data-value", option === "Experiments" ? "" : option);
         optionElement.textContent = option;
+        
+        // Highlight the currently selected option
+        const optionValue = option === "Experiments" ? "" : option;
+        if (optionValue === currentFilter) {
+            optionElement.classList.add('selected');
+        }
+        
         dropdownMenu.appendChild(optionElement);
         
         // Add slash between options (except for the last one)
@@ -170,9 +204,13 @@ function populateTagFilter(records) {
 function handleTagFilter(selectedValue, selectedText) {
     currentFilter = selectedValue;
     
-    // Update selected text - show "Experiments" for "All Experiments"
-    const displayText = selectedText === "All Experiments" ? "Experiments" : selectedText;
-    document.getElementById("dropdown-selected").textContent = displayText;
+    // Update selected text
+    const displayText = selectedValue === "" ? "Experiments" : selectedText;
+    const dropdownSelected = document.getElementById("dropdown-selected");
+    dropdownSelected.textContent = displayText;
+    
+    // Show the selected text again
+    dropdownSelected.style.display = 'inline';
     
     // Update selected option styling
     document.querySelectorAll('.dropdown-option').forEach(option => {
@@ -190,9 +228,15 @@ function handleTagFilter(selectedValue, selectedText) {
 // Toggle dropdown menu
 function toggleDropdown() {
     const dropdownMenu = document.getElementById("dropdown-menu");
+    const dropdownSelected = document.getElementById("dropdown-selected");
+    
     if (dropdownMenu.classList.contains('show')) {
         dropdownMenu.classList.remove('show');
+        // Show the selected text again when closing
+        dropdownSelected.style.display = 'inline';
     } else {
+        // Hide the selected text when opening dropdown
+        dropdownSelected.style.display = 'none';
         // Repopulate dropdown to exclude currently selected option
         populateTagFilter(allRecords);
         dropdownMenu.classList.add('show');

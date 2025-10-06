@@ -6,8 +6,8 @@
         "Brief": "",
         "Team": ["Philip"],
         "Tags": ["Gestures", "Screens"],
-        "Year": 2025,
-        "Video": "Content/Videos/Gaze Tracking.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/Gaze Tracking.mp4",
         "Image": ""
       },
       "active": true
@@ -17,9 +17,9 @@
         "Project": "Holographic Bubble",
         "Brief": "",
         "Team": ["DT"],
-        "Tags": ["Screens", "Optics"],
-        "Year": 2025,
-        "Video": "Content/Videos/Holographic Bubble.MOV",
+        "Tags": ["Screens"],
+        "Made with": [],
+        "Video": "Content/Videos/Holographic Bubble.mp4",
         "Image": ""
       },
       "active": true
@@ -30,8 +30,8 @@
         "Brief": "",
         "Team": ["Aaron"],
         "Tags": ["Materials"],
-        "Year": 2025,
-        "Video": "Content/Videos/Illuminated Dress.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/Illuminated Dress.mp4",
         "Image": ""
       },
       "active": true
@@ -42,8 +42,8 @@
         "Brief": "",
         "Team": ["Jeff"],
         "Tags": ["Gestures"],
-        "Year": 2025,
-        "Video": "Content/Videos/Interactive Plane.MOV",
+        "Made with": ["Motion Sensing", "Projection"],
+        "Video": "",
         "Image": ""
       },
       "active": false
@@ -54,32 +54,32 @@
         "Brief": "",
         "Team": ["Aaron"],
         "Tags": ["Materials"],
-        "Year": 2025,
-        "Video": "Content/Videos/Led Mesh.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/LED Mesh.mp4",
         "Image": ""
       },
       "active": true
     },
     {
       "fields": {
-        "Project": "Lens Array",
+        "Project": "3D Printed Lens Array",
         "Brief": "",
         "Team": ["Sam"],
         "Tags": ["Optics", "Materials"],
-        "Year": 2025,
-        "Video": "Content/Videos/Lens Array.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/Lens Array.mp4",
         "Image": ""
       },
       "active": true
     },
     {
       "fields": {
-        "Project": "Lenses",
+        "Project": "3D Printed Lenses",
         "Brief": "",
         "Team": ["Sam"],
         "Tags": ["Materials", "Optics"],
-        "Year": 2025,
-        "Video": "Content/Videos/Lenses.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/3D Printed Lenses.mp4",
         "Image": ""
       },
       "active": true
@@ -90,11 +90,11 @@
         "Brief": "",
         "Team": ["Jeff"],
         "Tags": ["Optics"],
-        "Year": 2025,
-        "Video": "Content/Videos/Light and Optics.MOV",
+        "Made with": [],
+        "Video": "",
         "Image": ""
       },
-      "active": true
+      "active": false
     },
     {
       "fields": {
@@ -102,7 +102,7 @@
         "Brief": "",
         "Team": ["Gabe"],
         "Tags": ["Gestures"],
-        "Year": 2025,
+        "Made with": ["Pose Detection"],    
         "Video": "Content/Videos/Pose to Point.mp4",
         "Image": ""
       },
@@ -114,11 +114,11 @@
         "Brief": "",
         "Team": ["Aaron"],
         "Tags": ["Optics"],
-        "Year": 2025,
-        "Video": "Content/Videos/Skylight.mov",
+        "Made with": [],
+        "Video": "Content/Videos/Skylight.mp4",
         "Image": ""
       },
-      "active": false
+      "active": true
     },
     {
       "fields": {
@@ -126,8 +126,8 @@
         "Brief": "Servos and stuff",
         "Team": ["Aaron", "DT"],
         "Tags": ["Optics", "Materials"],
-        "Year": 2024,
-        "Video": "Content/Videos/Dichroic Pixels.MOV",
+        "Made with": ["Dichroic Film", "Servo motors"],
+        "Video": "Content/Videos/Dichroic Pixels.mp4",
         "Image": ""
       },
       "active": true
@@ -138,20 +138,20 @@
         "Brief": "",
         "Team": ["Aaron", "Sam", "Andy"],
         "Tags": ["Optics", "Materials"],
-        "Year": 2024,
-        "Video": "",
+        "Made with": ["Fiber Optics", "Concrete"],
+        "Video": "Content/Videos/Fiber Optics.mp4",
         "Image": ""
       },
-      "active": false
+      "active": true
     },
     {
       "fields": {
         "Project": "Hologauze",
         "Brief": "",
         "Team": ["Jeff", "Casey"],
-        "Tags": ["Screens"],
-        "Year": 2024,
-        "Video": "Content/Videos/Hologauze.MOV",
+        "Tags": ["Screens", "Sounds"],
+        "Made with": [],
+        "Video": "Content/Videos/Hologauze.mp4",
         "Image": ""
       },
       "active": true
@@ -160,10 +160,22 @@
       "fields": {
         "Project": "Interactive Tabletop",
         "Brief": "",
-        "Team": ["Casey"],
-        "Tags": ["Gestures"],
-        "Year": 2024,
-        "Video": "Content/Videos/Interactive Tabletop.MOV",
+        "Team": ["Casey", "Jeff"],
+        "Tags": ["Gestures","Sounds"],
+        "Made with": [],
+        "Video": "Content/Videos/Interactive Tabletop.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Spatial Synth",
+        "Brief": "",
+        "Team": ["Casey", "Jeff"],
+        "Tags": ["Sounds"],
+        "Made with": [],
+        "Video": "Content/Videos/Spatial Synth.mp4",
         "Image": ""
       },
       "active": true
@@ -174,7 +186,7 @@
         "Brief": "Gaussian Splat",
         "Team": ["Philip", "Jeff", "Aaron"],
         "Tags": ["Screens"],
-        "Year": 2024,
+        "Made with": ["Gaussian Splatting"],
         "Video": "Content/Videos/Jeff Splatbieri.mp4",
         "Image": ""
       },
@@ -186,8 +198,8 @@
         "Brief": "",
         "Team": ["Sam"],
         "Tags": ["Screens"],
-        "Year": 2024,
-        "Video": "Content/Videos/Lab Logo.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/Lab Logo.mp4",
         "Image": ""
       },
       "active": true
@@ -197,9 +209,45 @@
         "Project": "Mirror and Lens",
         "Brief": "",
         "Team": ["Sam"],
-        "Tags": ["Optics", "Materials"],
-        "Year": 2024,
-        "Video": "Content/Videos/Mirror and Lens.MOV",
+        "Tags": ["Materials"],
+        "Made with": ["Mirrors", "3D printed Lenses"],
+        "Video": "Content/Videos/Mirror and Lens.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "3D Printed Fabric",
+        "Brief": "",
+        "Team": ["Sam"],
+        "Tags": ["Materials"],
+        "Made with": [],
+        "Video": "Content/Videos/3D Printed Fabric.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Stretchable Screen 1",
+        "Brief": "",
+        "Team": ["Casey"],
+        "Tags": ["Materials","Screens","Gestures"],
+        "Made with": [],
+        "Video": "Content/Videos/Stretchable Screen 1.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Stretchable Screen 2",
+        "Brief": "",
+        "Team": ["Casey"],
+        "Tags": ["Materials","Screens","Gestures"],
+        "Made with": [],
+        "Video": "Content/Videos/Stretchable Screen 2.mp4",
         "Image": ""
       },
       "active": true
@@ -210,8 +258,8 @@
         "Brief": "",
         "Team": ["Sam", "Casey"],
         "Tags": ["Screens", "Gestures"],
-        "Year": 2024,
-        "Video": "Content/Videos/Stream Diffusion.MOV",
+        "Made with": [],
+        "Video": "Content/Videos/Stream Diffusion.mp4",
         "Image": ""
       },
       "active": true
