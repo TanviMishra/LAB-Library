@@ -31,7 +31,7 @@
         "Team": ["Aaron"],
         "Tags": ["Materials"],
         "Made with": [],
-        "Video": "Content/Videos/Illuminated Dress.mp4",
+        "Video": "Content/Videos/Illuminated Wearables.mp4",
         "Image": ""
       },
       "active": true
@@ -106,7 +106,7 @@
         "Video": "Content/Videos/Pose to Point.mp4",
         "Image": ""
       },
-      "active": true
+      "active": false
     },
     {
       "fields": {
@@ -139,7 +139,7 @@
         "Team": ["Aaron", "Sam", "Andy"],
         "Tags": ["Optics", "Materials"],
         "Made with": ["Fiber Optics", "Concrete"],
-        "Video": "Content/Videos/Fiber Optics.mp4",
+        "Video": "Content/Videos/Fiber Optic.mp4",
         "Image": ""
       },
       "active": true
@@ -161,7 +161,7 @@
         "Project": "Interactive Tabletop",
         "Brief": "",
         "Team": ["Casey", "Jeff"],
-        "Tags": ["Gestures","Sounds"],
+        "Tags": ["Sounds"],
         "Made with": [],
         "Video": "Content/Videos/Interactive Tabletop.mp4",
         "Image": ""
@@ -259,7 +259,19 @@
         "Team": ["Sam", "Casey"],
         "Tags": ["Screens", "Gestures"],
         "Made with": [],
-        "Video": "Content/Videos/Stream Diffusion.mp4",
+        "Video": "Content/Videos/Stable Diffusion.mp4",
+        "Image": ""
+      },
+      "active": true
+    },
+    {
+      "fields": {
+        "Project": "Epipelagic",
+        "Brief": "",
+        "Team": ["Aaron", "Reine"],
+        "Tags": ["Optics"],
+        "Made with": [],
+        "Video": "Content/Videos/Ripple.mp4",
         "Image": ""
       },
       "active": true

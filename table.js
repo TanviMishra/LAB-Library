@@ -67,25 +67,6 @@ function displayProjects(records) {
                 </video>
             `;
         } else if (projectName) {
-            // Fallback: try to dynamically link to video files
-            const videoExtensions = ['.mp4', '.MOV', '.mov', '.MP4'];
-            let videoFound = false;
-            
-            for (const ext of videoExtensions) {
-                const videoPath = `Content/Videos/${projectName}${ext}`;
-                mediaHTML = `
-                    <video class="project-video" 
-                           preload="metadata" 
-                           loop 
-                           playsinline>
-                        <source src="${videoPath}" type="video/mp4">
-                        <source src="${videoPath}" type="video/quicktime">
-                        Your browser doesn't support video.
-                    </video>
-                `;
-                videoFound = true;
-                break; // Use the first extension found
-            }
             
             if (!videoFound) {
                 mediaHTML = `<div class="no-video">No video available</div>`;
