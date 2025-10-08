@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
     max-width: 80vw;
-    margin: 0 auto;
+    margin: 250px auto 0px auto;
     line-height: 1.6;
 }
 
@@ -23,18 +23,22 @@ h1 {
 }
 
 .filter-container {
-    text-align: left;
     position: fixed;
     top: 0;
     left: 0;
-    backdrop-filter: blur(70px);
+    right: 0;
     z-index: 100;
-    padding: 0 10vw;
-    padding-top: 30px;
+    padding: 50px 10vw 20px 10vw;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    backdrop-filter: blur(30px);
+    width: 100%;
+}
+.filter-container p {
+    width: 50% !important;
 }
 
+
 .library-header {
-    
     display: flex;
     flex-direction: row;
     align-items: start;
@@ -49,7 +53,7 @@ h1 {
     align-items: center;
     gap: 10px;
     font-family: Arial, sans-serif;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .library-title img {
@@ -63,8 +67,8 @@ h1 {
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 24px; /* base size for header controls */
+    font-weight: bold; /* base weight for header controls */
     color: #333;
     font-family: Arial, sans-serif;
 }
@@ -90,8 +94,8 @@ h1 {
 
 .dropdown-option {
     cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: inherit;
+    font-weight: inherit;
     color: #333;
     font-style: normal;
     transition: all 0.2s ease;
@@ -115,7 +119,7 @@ h1 {
     grid-template-columns: repeat(5, 1fr);
     gap: 30px 80px;
     /* max-width: 80vw; */
-    margin: 250px auto 150px auto;
+    margin: 50px auto 150px auto;
     /* padding: 0 20px; */
 }
 
@@ -192,10 +196,17 @@ h1 {
 }
 
 
-@media (max-width: 1000px) {
+@media (max-width: 1280px) {
+    body {
+        margin-top: 300px;
+    }
     .library-header {
-        flex-direction: column;
-        align-items: start;
+        flex-direction: row; /* closed: row */
+        align-items: center;
+    }
+    .library-header:has(.dropdown-menu.show) {
+        flex-direction: column; /* open: column */
+        align-items: flex-start;
     }
 
     #projects-container {
@@ -203,27 +214,35 @@ h1 {
     }
 
     .library-title {
-        font-size: 20px;
+        font-size: 20px; /* keep in sync with nav */
         gap: 8px;
     }
 
     .library-nav {
-        font-size: 20px;
+        font-size: 20px; /* in sync with title */
         gap: 8px;
     }
     .filter-container p {
-        width: 100% !important;
+        width: 80% !important;
     }
 
 }
 
 @media (max-width: 600px) {
+    .library-header {
+        flex-direction: row; /* closed: row */
+        align-items: center;
+    }
+    .library-header:has(.dropdown-menu.show) {
+        flex-direction: column; /* open: column */
+        align-items: flex-start;
+    }
     #projects-container {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .library-title {
-        font-size: 18px;
+        font-size: 18px; /* keep in sync with nav */
         gap: 5px;
         line-height: 1.4;
     }
@@ -233,7 +252,7 @@ h1 {
     }
 
     .library-nav {
-        font-size: 18px;
+        font-size: 18px; /* in sync with title */
         gap: 5px;
     }
 
@@ -244,22 +263,22 @@ h1 {
     }
 
     .dropdown-option {
-        font-size: 18px;
+        font-size: inherit; /* follow .library-nav */
         margin: 0 2px;
     }
 }
 
 @media (max-width: 480px) {
     .library-title {
-        font-size: 16px;
+        font-size: 16px; /* keep in sync with nav */
     }
 
     .library-nav {
-        font-size: 16px;
+        font-size: 16px; /* in sync with title */
     }
 
     .dropdown-option {
-        font-size: 16px;
+        font-size: inherit; /* follow .library-nav */
     }
 
     .filter-container p {
