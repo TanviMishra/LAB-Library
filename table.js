@@ -47,9 +47,10 @@ function displayProjects(records) {
   // Populate tag dropdown
   populateTagFilter(validRecords);
 
-  filteredRecords.forEach((record) => {
+  filteredRecords.forEach((record, index) => {
     const projectDiv = document.createElement("div");
     projectDiv.className = "project-card";
+    projectDiv.dataset.projectIndex = index;
 
     const projectName = record.fields["Project"];
     const videoField = record.fields["Video"];
@@ -97,17 +98,25 @@ function displayProjects(records) {
     // Get team and made with for display
     const team = record.fields["Team"] || [];
     const madeWith = record.fields["Made with"] || [];
+    const brief = record.fields["Brief"] || "";
     const teamText = team.join(", ");
     const madeWithText = madeWith.join(", ");
+    const yearText = record.fields["Year"] || "";
 
     projectDiv.innerHTML = `
             <div class="project-video-container">
                 ${mediaHTML}
             </div>
             <h3 class="project-name">${projectName}</h3>
-            <div class="project-meta">
-                <div class="project-made-with">${madeWithText}</div>
-                <div class="project-team">Made by ${teamText}</div>
+            <div class="project-meta" style="display: none;">
+                <div class = "flex">
+                  <p class="project-team">Made by ${teamText}</p>
+                  <p class="project-year">${yearText}</p>
+                </div>
+                <p class="project-made-with">${madeWithText}</p>
+            </div>
+            <div class="project-detail-content" style="display: none;">
+                <p class="project-brief">${brief}</p>
             </div>
         `;
 
@@ -124,8 +133,57 @@ function displayProjects(records) {
       });
     }
 
+    // Expand/collapse on click
+    projectDiv.addEventListener("click", () => {
+      toggleProjectExpansion(projectDiv, record);
+    });
+
     container.appendChild(projectDiv);
   });
+}
+
+// Toggle project expansion within the grid
+function toggleProjectExpansion(projectDiv, record) {
+  const isExpanded = projectDiv.classList.contains('expanded');
+  
+  // Collapse all other expanded projects
+  document.querySelectorAll('.project-card.expanded').forEach(card => {
+    if (card !== projectDiv) {
+      card.classList.remove('expanded');
+      const detailContent = card.querySelector('.project-detail-content');
+      const metaContent = card.querySelector('.project-meta');
+      if (detailContent) {
+        detailContent.style.display = 'none';
+      }
+      if (metaContent) {
+        metaContent.style.display = 'none';
+      }
+    }
+  });
+  
+  if (isExpanded) {
+    // Collapse this project
+    projectDiv.classList.remove('expanded');
+    const detailContent = projectDiv.querySelector('.project-detail-content');
+    const metaContent = projectDiv.querySelector('.project-meta');
+    if (detailContent) {
+      detailContent.style.display = 'none';
+    }
+    if (metaContent) {
+      metaContent.style.display = 'none';
+    }
+  } else {
+    // Expand this project
+    projectDiv.classList.add('expanded');
+    const detailContent = projectDiv.querySelector('.project-detail-content');
+    const metaContent = projectDiv.querySelector('.project-meta');
+    if (detailContent) {
+      detailContent.style.display = 'block';
+    }
+    if (metaContent) {
+      metaContent.style.display = 'block';
+    }
+  }
 }
 
 // Populate tag filter dropdown

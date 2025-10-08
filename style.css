@@ -1,22 +1,20 @@
 body {
     font-family: Arial, sans-serif;
     max-width: 80vw;
-    margin: 0 auto;
+    margin: 250px auto 0px auto;
     line-height: 1.6;
-    background-color: #f5f5f5;
 }
 
 * {
     font-family: Arial, sans-serif;
 }
 a{
-    text-decoration: none;
-    color: #333;
+    text-decoration: underline;
     font-style: normal;
+    color: #333;
 }
 a:hover{
     font-style: italic;
-    color: #6b909d;
 }
 h1 {
     text-align: center;
@@ -24,12 +22,28 @@ h1 {
     margin-bottom: 30px;
 }
 
-.filter-container {
-    /* max-width: 80vw; */
-    margin: 60px auto;
-    /* padding: 0 20px; */
-    text-align: left;
+.flex {
+    display: flex;
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: space-between;
 }
+
+.filter-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 50px 10vw 20px 10vw;
+    background: linear-gradient(to top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    backdrop-filter: blur(30px);
+    width: 100%;
+}
+.filter-container p {
+    width: 50% !important;
+}
+
 
 .library-header {
     display: flex;
@@ -46,7 +60,7 @@ h1 {
     align-items: center;
     gap: 10px;
     font-family: Arial, sans-serif;
-    white-space: nowrap;
+    white-space: normal;
 }
 
 .library-title img {
@@ -60,8 +74,8 @@ h1 {
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: 24px; /* base size for header controls */
+    font-weight: bold; /* base weight for header controls */
     color: #333;
     font-family: Arial, sans-serif;
 }
@@ -72,10 +86,6 @@ h1 {
     border-bottom: 1px solid #333;
     font-style: italic;
     cursor: pointer;
-}
-
-.dropdown-selected:hover {
-    color: #6b909d;
 }
 
 .dropdown-menu {
@@ -91,8 +101,8 @@ h1 {
 
 .dropdown-option {
     cursor: pointer;
-    font-size: 24px;
-    font-weight: bold;
+    font-size: inherit;
+    font-weight: inherit;
     color: #333;
     font-style: normal;
     transition: all 0.2s ease;
@@ -103,12 +113,10 @@ h1 {
 
 .dropdown-option:hover {
     font-style: italic;
-    color: #6b909d;
     border-bottom: 1px solid #333;
 }
 
 .dropdown-option.selected {
-    background: #f0f0f0;
     color: #333;
     font-weight: bold;
 }
@@ -118,7 +126,7 @@ h1 {
     grid-template-columns: repeat(5, 1fr);
     gap: 30px 80px;
     /* max-width: 80vw; */
-    margin: 0 auto 150px auto;
+    margin: 50px auto 150px auto;
     /* padding: 0 20px; */
 }
 
@@ -130,13 +138,18 @@ h1 {
 }
 
 .project-name {
-    margin: 15px 0 0 0;
+    margin: 15px 0 0 0 !important;
     color: #333;
     font-size: 1em;
     font-weight: normal;
     font-family: Arial, sans-serif;
     text-align: left;
     text-transform: uppercase;
+}
+
+.project-card.expanded .project-name {
+    font-size: 1em;
+    /* margin: 0; */
 }
 
 .project-meta {
@@ -146,6 +159,25 @@ h1 {
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
+}
+
+.project-made-with,
+.project-team {
+    margin: 0;
+    color: #333;
+}
+
+.project-year {
+    margin: 0;
+    color: #333;
+}
+
+.project-brief {
+    font-size: 0.75em;
+    line-height: 1.6;
+    color: #333;
+    white-space: pre-wrap;
+    margin: 0;
 }
 
 
@@ -183,6 +215,127 @@ h1 {
     text-align: center;
 }
 
+/* In-place expansion styles */
+.project-card {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top left;
+}
+
+.project-card.expanded {
+    grid-column: span 2;
+    grid-row: span 2;
+    /* display: grid; */
+    /* grid-template-rows: auto auto auto;
+    gap: 0;
+    padding: 0; */
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    transform: scale(1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    align-items: stretch;
+    animation: expandCard 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes expandCard {
+    0% {
+        transform: scale(0.6);
+        /* opacity: 0.5; */
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.project-card.expanded .project-video-container {
+    width: 100%;
+    aspect-ratio: 1.5;
+    grid-row: 1;
+    align-self: stretch;
+    margin: 0;
+}
+
+.project-card.expanded .project-info {
+    grid-row: 2;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.project-card.expanded .project-name {
+    font-size: 1em;
+    /* margin: 0; */
+}
+
+.project-card.expanded .project-meta {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr auto; /* left label, right year */
+    grid-template-rows: auto auto; /* two rows */
+    column-gap: 20px;
+    row-gap: 6px;
+    align-items: baseline;
+}
+
+.project-card.expanded .project-brief {
+    grid-row: 3;
+    margin-top: 20px;
+}
+
+/* Expanded meta layout: first row left/right, second row full width */
+.project-card.expanded .project-team { 
+    grid-column: 1; 
+    grid-row: 1; 
+}
+.project-card.expanded .project-year { 
+    grid-column: 2; 
+    grid-row: 1; 
+    justify-self: end; 
+}
+.project-card.expanded .project-made-with { 
+    grid-column: 1 / -1; 
+    grid-row: 2; 
+}
+
+
+/* Responsive adjustments for expanded cards */
+@media (max-width: 1280px) {
+    .project-card.expanded {
+        grid-column: span 3;
+        gap: 15px;
+    }
+    
+    .project-card.expanded .project-video-container {
+        aspect-ratio: 1.3;
+    }
+    
+    .project-card.expanded .project-name {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 600px) {
+    .project-card.expanded {
+        grid-column: span 2;
+        gap: 10px;
+    }
+    
+    .project-card.expanded .project-video-container {
+        aspect-ratio: 1.2;
+    }
+    
+    .project-card.expanded .project-name {
+        font-size: 1em;
+    }
+    .filter-container {
+        width: 80%; /*error*/
+    }
+}
+
 .loading-indicator {
     grid-column: 1 / -1;
     text-align: center;
@@ -194,43 +347,54 @@ h1 {
     margin: 20px 0;
 }
 
-/* Responsive design */
-@media (max-width: 1200px) {
-    .library-header {
-        flex-direction: column;
-        align-items: start;
-    }
-}
 
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
+    body {
+        margin-top: 300px;
+    }
+    .library-header {
+        flex-direction: row; /* closed: row */
+        align-items: center;
+    }
+    .library-header:has(.dropdown-menu.show) {
+        flex-direction: column; /* open: column */
+        align-items: flex-start;
+    }
+
     #projects-container {
         grid-template-columns: repeat(3, 1fr);
     }
 
     .library-title {
-        font-size: 20px;
+        font-size: 20px; /* keep in sync with nav */
         gap: 8px;
     }
 
     .library-nav {
-        font-size: 20px;
+        font-size: 20px; /* in sync with title */
         gap: 8px;
     }
-
-    .filter-container {
-        max-width: 90vw;
-        margin: 40px auto 20px auto;
-        padding: 0 15px;
+    .filter-container p {
+        width: 80% !important;
     }
+
 }
 
 @media (max-width: 600px) {
+    .library-header {
+        flex-direction: row; /* closed: row */
+        align-items: center;
+    }
+    .library-header:has(.dropdown-menu.show) {
+        flex-direction: column; /* open: column */
+        align-items: flex-start;
+    }
     #projects-container {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .library-title {
-        font-size: 18px;
+        font-size: 18px; /* keep in sync with nav */
         gap: 5px;
         line-height: 1.4;
     }
@@ -240,14 +404,8 @@ h1 {
     }
 
     .library-nav {
-        font-size: 18px;
+        font-size: 18px; /* in sync with title */
         gap: 5px;
-    }
-
-    .filter-container {
-        max-width: 95vw;
-        margin: 30px auto 15px auto;
-        padding: 0 10px;
     }
 
     .filter-container p {
@@ -257,22 +415,22 @@ h1 {
     }
 
     .dropdown-option {
-        font-size: 18px;
+        font-size: inherit; /* follow .library-nav */
         margin: 0 2px;
     }
 }
 
 @media (max-width: 480px) {
     .library-title {
-        font-size: 16px;
+        font-size: 16px; /* keep in sync with nav */
     }
 
     .library-nav {
-        font-size: 16px;
+        font-size: 16px; /* in sync with title */
     }
 
     .dropdown-option {
-        font-size: 16px;
+        font-size: inherit; /* follow .library-nav */
     }
 
     .filter-container p {
