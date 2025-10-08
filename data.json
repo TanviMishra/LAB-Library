@@ -54,9 +54,15 @@
         "Brief": "",
         "Team": ["Aaron"],
         "Tags": ["Materials"],
+<<<<<<< Updated upstream
         "Made with": [],
         "Video": "Content/Videos/LED Mesh.mp4",
         "Image": ""
+=======
+        "Made with": ["LED Mesh Fabric","Advatek controller"],
+        "Year": "2025",
+        "Video": "Content/Videos/Led Mesh.mp4"
+>>>>>>> Stashed changes
       },
       "active": true
     },
