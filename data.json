@@ -3,36 +3,49 @@
     {
       "fields": {
         "Project": "Gaze Tracking",
-        "Brief": "",
+        "Brief": "An experimental that tracks 2 users eye movement to control digital interactions. The experience is deseigned for both users to hold each others gaze. This project explores the potential of gaze-based interactions and microgestures allowing users to interact with content differently than they usually would.",
         "Team": ["Philip"],
         "Tags": ["Gestures", "Screens"],
-        "Made with": [],
-        "Video": "Content/Videos/Gaze Tracking.mp4",
-        "Image": ""
+        "Made with": ["Touchdesigner", "Media Pipe", "Transparent LCD Display"],
+        "Year": "2025",
+        "Video": "Content/Videos/Gaze Tracking.mp4"
       },
       "active": true
     },
     {
       "fields": {
         "Project": "Holographic Bubble",
-        "Brief": "",
+        "Brief": "Playing with display technology to creates floating Years within a spherical enclosure. Using optical techniques and manipulation for an immersive visual experiences.",
         "Team": ["DT"],
         "Tags": ["Screens"],
         "Made with": [],
-        "Video": "Content/Videos/Holographic Bubble.mp4",
-        "Image": ""
+        "Year": "2025",
+        "Video": "Content/Videos/Holographic Bubble.mp4"
+      },
+      "active": true
+    },
+    
+    {
+      "fields": {
+        "Project": "Epipelagic",
+        "Brief": "",
+        "Team": ["Aaron", "Reine"],
+        "Tags": ["Optics"],
+        "Made with": [],
+        "Video": "Content/Videos/Ripple.mp4",
+        "Year": "2025"
       },
       "active": true
     },
     {
       "fields": {
         "Project": "Illuminated Dress",
-        "Brief": "",
+        "Brief": "A fabric experiment that uses an LED mesh with an advatek controller to cycle through a couple fo looks. This project explores the intersection of fashion and technology, demonstrating the potential for interactive clothing in performance.",
         "Team": ["Aaron"],
         "Tags": ["Materials"],
-        "Made with": [],
-        "Video": "Content/Videos/Illuminated Wearables.mp4",
-        "Image": ""
+        "Made with": ["LED Mesh Fabric", "Advatek controller"],
+        "Year": "2025",
+        "Video": "Content/Videos/Illuminated Wearables.mp4"
       },
       "active": true
     },
@@ -43,20 +56,20 @@
         "Team": ["Jeff"],
         "Tags": ["Gestures"],
         "Made with": ["Motion Sensing", "Projection"],
-        "Video": "",
-        "Image": ""
+        "Year": "2025",
+        "Video": ""
       },
       "active": false
     },
     {
       "fields": {
         "Project": "LED Mesh",
-        "Brief": "",
+        "Brief": "An architectural lighting installation featuring a suspended LED mesh structure building off of our work with Illuminated dresses with the potential to atach them to articulating wenches",
         "Team": ["Aaron"],
         "Tags": ["Materials"],
-        "Made with": [],
-        "Video": "Content/Videos/LED Mesh.mp4",
-        "Image": ""
+        "Made with": ["LED Mesh Fabric","Advatek controller"],
+        "Year": "2025",
+        "Video": "Content/Videos/LED Mesh.mp4"
       },
       "active": true
     },
@@ -67,20 +80,20 @@
         "Team": ["Sam"],
         "Tags": ["Optics", "Materials"],
         "Made with": [],
-        "Video": "Content/Videos/Lens Array.mp4",
-        "Image": ""
+        "Year": "2025",
+        "Video": "Content/Videos/Lens Array.mp4"
       },
-      "active": true
+      "active": false
     },
     {
       "fields": {
         "Project": "3D Printed Lenses",
-        "Brief": "",
+        "Brief": "Exploring different diffusion layers and fine tuning the effects they produce",
         "Team": ["Sam"],
         "Tags": ["Materials", "Optics"],
         "Made with": [],
-        "Video": "Content/Videos/3D Printed Lenses.mp4",
-        "Image": ""
+        "Year": "2025",
+        "Video": "Content/Videos/3D Printed Lenses.mp4"
       },
       "active": true
     },
@@ -92,7 +105,7 @@
         "Tags": ["Optics"],
         "Made with": [],
         "Video": "",
-        "Image": ""
+        "Year": "2025"
       },
       "active": false
     },
@@ -102,9 +115,9 @@
         "Brief": "",
         "Team": ["Gabe"],
         "Tags": ["Gestures"],
-        "Made with": ["Pose Detection"],    
-        "Video": "Content/Videos/Pose to Point.mp4",
-        "Image": ""
+        "Made with": ["Pose Detection"], 
+        "Year": "2025",   
+        "Video": "Content/Videos/Pose to Point.mp4"
       },
       "active": false
     },
@@ -114,21 +127,21 @@
         "Brief": "",
         "Team": ["Aaron"],
         "Tags": ["Optics"],
-        "Made with": [],
-        "Video": "Content/Videos/Skylight.mp4",
-        "Image": ""
+        "Made with": ["A hole in the roof"],
+        "Year": "2025",
+        "Video": "Content/Videos/Skylight.mp4"
       },
       "active": true
     },
     {
       "fields": {
         "Project": "Dichroic Pixels",
-        "Brief": "Servos and stuff",
+        "Brief": "Using dichroic screen, fabricated enclosures and rotating servo motors to create a sun dappled look",
         "Team": ["Aaron", "DT"],
         "Tags": ["Optics", "Materials"],
         "Made with": ["Dichroic Film", "Servo motors"],
-        "Video": "Content/Videos/Dichroic Pixels.mp4",
-        "Image": ""
+        "Year": "2024",
+        "Video": "Content/Videos/Dichroic Pixels.mp4"
       },
       "active": true
     },
@@ -140,7 +153,7 @@
         "Tags": ["Optics", "Materials"],
         "Made with": ["Fiber Optics", "Concrete"],
         "Video": "Content/Videos/Fiber Optic.mp4",
-        "Image": ""
+        "Year": "2024-25"
       },
       "active": true
     },
@@ -152,7 +165,7 @@
         "Tags": ["Screens", "Sounds"],
         "Made with": [],
         "Video": "Content/Videos/Hologauze.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -164,7 +177,7 @@
         "Tags": ["Sounds"],
         "Made with": [],
         "Video": "Content/Videos/Interactive Tabletop.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -176,7 +189,7 @@
         "Tags": ["Sounds"],
         "Made with": [],
         "Video": "Content/Videos/Spatial Synth.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -188,7 +201,7 @@
         "Tags": ["Screens"],
         "Made with": ["Gaussian Splatting"],
         "Video": "Content/Videos/Jeff Splatbieri.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -200,7 +213,7 @@
         "Tags": ["Screens"],
         "Made with": [],
         "Video": "Content/Videos/Lab Logo.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -212,7 +225,7 @@
         "Tags": ["Materials"],
         "Made with": ["Mirrors", "3D printed Lenses"],
         "Video": "Content/Videos/Mirror and Lens.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -224,31 +237,31 @@
         "Tags": ["Materials"],
         "Made with": [],
         "Video": "Content/Videos/3D Printed Fabric.mp4",
-        "Image": ""
+        "Year": "2025"
       },
       "active": true
     },
     {
       "fields": {
-        "Project": "Stretchable Screen 1",
+        "Project": "Stretchable Screen(1)",
         "Brief": "",
         "Team": ["Casey"],
         "Tags": ["Materials","Screens","Gestures"],
         "Made with": [],
         "Video": "Content/Videos/Stretchable Screen 1.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
     {
       "fields": {
-        "Project": "Stretchable Screen 2",
+        "Project": "Stretchable Screen(2)",
         "Brief": "",
         "Team": ["Casey"],
         "Tags": ["Materials","Screens","Gestures"],
         "Made with": [],
         "Video": "Content/Videos/Stretchable Screen 2.mp4",
-        "Image": ""
+        "Year": "2024"
       },
       "active": true
     },
@@ -260,19 +273,7 @@
         "Tags": ["Screens", "Gestures"],
         "Made with": [],
         "Video": "Content/Videos/Stable Diffusion.mp4",
-        "Image": ""
-      },
-      "active": true
-    },
-    {
-      "fields": {
-        "Project": "Epipelagic",
-        "Brief": "",
-        "Team": ["Aaron", "Reine"],
-        "Tags": ["Optics"],
-        "Made with": [],
-        "Video": "Content/Videos/Ripple.mp4",
-        "Image": ""
+        "Year": "2023"
       },
       "active": true
     }
