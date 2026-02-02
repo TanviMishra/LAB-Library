@@ -154,9 +154,10 @@ function displayProjects(records) {
     if (videoField && videoField.trim() !== "") {
       mediaHTML = `
                 <video class="project-video" 
-                       preload="metadata" 
+                       preload="auto" 
                        loop 
-                       playsinline>
+                       playsinline
+                       muted>
                     <source src="${videoField}" type="video/mp4">
                     <source src="${videoField}" type="video/quicktime">
                     Your browser doesn't support video.
@@ -203,6 +204,17 @@ function displayProjects(records) {
     // Add hover functionality for videos (not images)
     const video = projectDiv.querySelector(".project-video");
     if (video) {
+      // Force video to load on iOS devices
+      video.load();
+      
+      // Ensure video loads when clicked (iOS requirement)
+      projectDiv.addEventListener("click", (e) => {
+        // Load video if not already loaded (for iOS)
+        if (video.readyState === 0) {
+          video.load();
+        }
+      }, { once: true });
+      
       projectDiv.addEventListener("mouseenter", () => {
         video.play().catch((err) => console.log("Play failed:", err));
       });
@@ -246,6 +258,16 @@ function toggleProjectExpansion(projectDiv, record) {
     const projectBrief = projectDiv.querySelector(".project-brief");
     if (projectInfo) projectInfo.style.display = "block";
     if (projectBrief) projectBrief.style.display = "block";
+    
+    // Ensure video loads and plays when expanded (iOS fix)
+    const video = projectDiv.querySelector(".project-video");
+    if (video) {
+      if (video.readyState === 0) {
+        video.load();
+      }
+      // Try to play video when expanded (muted videos can autoplay)
+      video.play().catch((err) => console.log("Play failed:", err));
+    }
   }
 }
 

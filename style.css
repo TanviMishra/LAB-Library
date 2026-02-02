@@ -80,9 +80,6 @@ p{
     text-transform: uppercase;
     
 }
-intro-text {
-    width: 60% !important;
-}
 
 .library-title img {
     height: 1em;
@@ -345,6 +342,7 @@ intro-text {
     margin-bottom: 100px;
 }
 
+
 /* Responsive adjustments for expanded cards */
 @media (max-width: 1280px) {
     .project-card.expanded {
@@ -390,6 +388,11 @@ intro-text {
     margin: 20px 0;
 }
 
+@media (max-width: 1600px) {
+    body {
+        margin-top: 200px;
+    }
+}
 
 @media (max-width: 1280px) {
     body {
@@ -417,7 +420,7 @@ intro-text {
         font-size: 20px; /* in sync with title */
         gap: 8px;
     }
-    intro-text {
+    #intro-text {
         width: 80% !important;
     }
 
@@ -451,7 +454,7 @@ intro-text {
         gap: 5px;
     }
 
-    intro-text {
+    #intro-text {
         width: 100% !important;
         font-size: 14px;
         line-height: 1.5;
