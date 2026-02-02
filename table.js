@@ -95,6 +95,13 @@ function extractYear(dateString) {
   return year;
 }
 
+// Helper function to detect if device is a phone or iPad
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
+         ('ontouchstart' in window) || 
+         (navigator.maxTouchPoints > 0);
+}
+
 // Helper function to shuffle array (Fisher-Yates algorithm)
 function shuffleArray(array) {
   const shuffled = [...array]; // Create a copy to avoid mutating the original
@@ -154,11 +161,10 @@ function displayProjects(records) {
     if (videoField && videoField.trim() !== "") {
       mediaHTML = `
                 <video class="project-video" 
-                       preload="auto" 
+                       preload="metadata" 
                        loop 
                        playsinline
-                       
-                       >
+                       muted>
                     <source src="${videoField}" type="video/mp4">
                     <source src="${videoField}" type="video/quicktime">
                     Your browser doesn't support video.
@@ -202,32 +208,43 @@ function displayProjects(records) {
             </div>
         `;
 
-    // Add hover functionality for videos (not images)
+    // Add hover functionality for videos (not images) - desktop only
     const video = projectDiv.querySelector(".project-video");
-    if (video) {
-      // Force video to load on iOS devices
-      video.load();
-      
-      // Ensure video loads when clicked (iOS requirement)
-      projectDiv.addEventListener("click", (e) => {
-        // Load video if not already loaded (for iOS)
-        if (video.readyState === 0) {
-          video.load();
-        }
-      }, { once: true });
-      
+    const isMobile = isMobileDevice();
+    
+    if (video && !isMobile) {
+      // Desktop: hover to unmute, play video
       projectDiv.addEventListener("mouseenter", () => {
+        video.muted = false;
         video.play().catch((err) => console.log("Play failed:", err));
       });
 
       projectDiv.addEventListener("mouseleave", () => {
+        video.muted = true;
         video.pause();
         video.currentTime = 0;
       });
     }
 
-    // Expand/collapse on click
+    // Click handler - different behavior for mobile vs desktop
     projectDiv.addEventListener("click", () => {
+      const isExpanded = projectDiv.classList.contains("expanded");
+      
+      if (isMobile && video) {
+        // Mobile: unmute and play video when expanding, mute and pause when collapsing
+        if (!isExpanded) {
+          // Will expand - unmute and play video
+          video.muted = false;
+          video.play().catch((err) => console.log("Play failed:", err));
+        } else {
+          // Will collapse - mute and pause video
+          video.muted = true;
+          video.pause();
+          video.currentTime = 0;
+        }
+      }
+      
+      // Both mobile and desktop: toggle expand/collapse
       toggleProjectExpansion(projectDiv, record);
     });
 
@@ -241,10 +258,20 @@ function displayProjects(records) {
 // Toggle project expansion within the grid
 function toggleProjectExpansion(projectDiv, record) {
   const isExpanded = projectDiv.classList.contains("expanded");
+  const isMobile = isMobileDevice();
 
   // Collapse all other expanded projects
   document.querySelectorAll(".project-card.expanded").forEach((card) => {
     if (card !== projectDiv) {
+      // Stop video in other cards on mobile when clicking a new card
+      if (isMobile) {
+        const otherVideo = card.querySelector(".project-video");
+        if (otherVideo) {
+          otherVideo.muted = true;
+          otherVideo.pause();
+          otherVideo.currentTime = 0;
+        }
+      }
       collapseProject(card);
     }
   });
@@ -259,16 +286,6 @@ function toggleProjectExpansion(projectDiv, record) {
     const projectBrief = projectDiv.querySelector(".project-brief");
     if (projectInfo) projectInfo.style.display = "block";
     if (projectBrief) projectBrief.style.display = "block";
-    
-    // Ensure video loads and plays when expanded (iOS fix)
-    const video = projectDiv.querySelector(".project-video");
-    if (video) {
-      if (video.readyState === 0) {
-        video.load();
-      }
-      // Try to play video when expanded (muted videos can autoplay)
-      video.play().catch((err) => console.log("Play failed:", err));
-    }
   }
 }
 
@@ -276,6 +293,16 @@ function toggleProjectExpansion(projectDiv, record) {
 function collapseProject(projectDiv) {
   projectDiv.classList.add("collapsing");
   projectDiv.classList.remove("expanded");
+
+  // Stop video on mobile when collapsing
+  if (isMobileDevice()) {
+    const video = projectDiv.querySelector(".project-video");
+    if (video) {
+      video.muted = true;
+      video.pause();
+      video.currentTime = 0;
+    }
+  }
 
   // Wait for animation to complete before hiding content
   setTimeout(() => {

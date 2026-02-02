@@ -197,7 +197,8 @@ p{
     font-size: 0.75em;
     line-height: 1.6;
     color: var(--color-text);
-    margin-top: 20px;
+    margin-top: 5px;
+    width: 80%;
 }
 
 
