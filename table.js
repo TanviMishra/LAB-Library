@@ -157,7 +157,8 @@ function displayProjects(records) {
                        preload="auto" 
                        loop 
                        playsinline
-                       muted>
+                       
+                       >
                     <source src="${videoField}" type="video/mp4">
                     <source src="${videoField}" type="video/quicktime">
                     Your browser doesn't support video.
