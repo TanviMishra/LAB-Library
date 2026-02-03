@@ -234,11 +234,11 @@ function displayProjects(records) {
         // Mobile: unmute and play video when expanding, mute and pause when collapsing
         if (!isExpanded) {
           // Will expand - unmute and play video
-          video.muted = false;
+          // video.muted = false;
           video.play().catch((err) => console.log("Play failed:", err));
         } else {
           // Will collapse - mute and pause video
-          video.muted = true;
+          // video.muted = true;
           video.pause();
           video.currentTime = 0;
         }
