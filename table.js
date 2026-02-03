@@ -161,6 +161,7 @@ function displayProjects(records) {
     if (videoField && videoField.trim() !== "") {
       mediaHTML = `
                 <video class="project-video" 
+                       preload="metadata"
                        loop 
                        muted
                        playsinline>
@@ -230,14 +231,32 @@ function displayProjects(records) {
       const isExpanded = projectDiv.classList.contains("expanded");
       
       if (isMobile && video) {
-        // Mobile: unmute and play video when expanding, mute and pause when collapsing
+        // Mobile: load, unmute and play video when expanding, mute and pause when collapsing
         if (!isExpanded) {
-          // Will expand - unmute and play video
-          // video.muted = false;
-          video.play().catch((err) => console.log("Play failed:", err));
+          // Will expand - iOS requires explicit load() call on user interaction
+          console.log("iOS: Loading video, readyState:", video.readyState);
+          video.load();
+          
+          // Wait for video metadata to load, then unmute and play
+          const playVideo = () => {
+            console.log("iOS: Attempting to play, readyState:", video.readyState);
+            video.muted = false;
+            video.play().catch((err) => {
+              console.log("iOS Play failed:", err);
+              console.log("Video diagnostics - readyState:", video.readyState, "networkState:", video.networkState, "error:", video.error);
+            });
+          };
+          
+          if (video.readyState >= 1) {
+            // Video has metadata, can play
+            playVideo();
+          } else {
+            // Wait for metadata to load
+            video.addEventListener('loadedmetadata', playVideo, { once: true });
+          }
         } else {
           // Will collapse - mute and pause video
-          // video.muted = true;
+          video.muted = true;
           video.pause();
           video.currentTime = 0;
         }
