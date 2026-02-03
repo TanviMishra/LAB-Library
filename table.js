@@ -161,10 +161,9 @@ function displayProjects(records) {
     if (videoField && videoField.trim() !== "") {
       mediaHTML = `
                 <video class="project-video" 
-                       preload="metadata" 
                        loop 
-                       playsinline
-                       muted>
+                       muted
+                       playsinline>
                     <source src="${videoField}" type="video/mp4">
                     <source src="${videoField}" type="video/quicktime">
                     Your browser doesn't support video.
