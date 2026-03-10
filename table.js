@@ -258,7 +258,6 @@ function displayProjects(records) {
           // Will collapse - mute and pause video
           video.muted = true;
           video.pause();
-          video.currentTime = 0;
         }
       }
       
@@ -297,19 +296,23 @@ function forceIOSVideoThumbnails(container) {
         video.muted = true;
 
         const paintFrame = () => {
-          // Play briefly to force frame decode, then immediately pause
+          // Play briefly to force frame decode
           const playPromise = video.play();
           if (playPromise !== undefined) {
             playPromise.then(() => {
-              // Small delay to ensure the frame is actually painted
-              requestAnimationFrame(() => {
-                // Only pause if the card isn't expanded (user hasn't interacted)
+              // Wait multiple frames to ensure iOS has fully composited
+              // A single rAF is not enough — iOS needs the frame to
+              // pass through its compositor pipeline before pause is safe.
+              // Using setTimeout with ~100ms gives the GPU time to
+              // decode, composite, and render the frame to screen.
+              setTimeout(() => {
                 const card = video.closest('.project-card');
                 if (!card || !card.classList.contains('expanded')) {
                   video.pause();
-                  video.currentTime = 0;
+                  // Do NOT set currentTime — on iOS, seeking a paused
+                  // video clears the painted frame from the compositor.
                 }
-              });
+              }, 150);
             }).catch((err) => {
               console.log('iOS thumbnail paint failed:', err);
             });
@@ -350,7 +353,6 @@ function toggleProjectExpansion(projectDiv, record) {
         if (otherVideo) {
           otherVideo.muted = true;
           otherVideo.pause();
-          otherVideo.currentTime = 0;
         }
       }
       collapseProject(card);
@@ -381,7 +383,9 @@ function collapseProject(projectDiv) {
     if (video) {
       video.muted = true;
       video.pause();
-      video.currentTime = 0;
+      // Do NOT reset currentTime — on iOS this clears the painted
+      // thumbnail frame. The video will restart from the beginning
+      // when played again via load() in the click handler anyway.
     }
   }
 
