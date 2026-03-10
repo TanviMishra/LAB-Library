@@ -159,9 +159,12 @@ function displayProjects(records) {
 
     // Handle video
     if (videoField && videoField.trim() !== "") {
+      // Desktop: preload metadata so the browser renders the first frame
+      // Mobile: preload none — the thumbnail painter handles loading sequentially
+      const preloadValue = isMobileDevice() ? "none" : "metadata";
       mediaHTML = `
                 <video class="project-video" 
-                       preload="metadata"
+                       preload="${preloadValue}"
                        loop 
                        muted
                        playsinline>
@@ -173,7 +176,7 @@ function displayProjects(records) {
     }
     // If no video, check for image
     else if (imageField && imageField.trim() !== "") {
-      mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}">`;
+      mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}" loading="lazy" decoding="async">`;
     }
 
     // Placeholder if no media
@@ -213,16 +216,53 @@ function displayProjects(records) {
     const isMobile = isMobileDevice();
     
     if (video && !isMobile) {
-      // Desktop: hover to unmute, play video
+      // Track whether this video has had its data loaded
+      let videoReady = false;
+      let isHovering = false;
+
+      // Start loading video data on first mouseenter so frames are buffered
+      const ensureLoaded = () => {
+        if (!videoReady && video.preload !== 'auto') {
+          video.preload = 'auto';
+          video.load();
+        }
+      };
+
+      // Desktop: hover to play video with audio
+      // Strategy: always attempt unmuted play first (works after any user
+      // gesture on the page). If that fails (Firefox/Chrome autoplay policy),
+      // fall back to muted play so the video still animates visually.
       projectDiv.addEventListener("mouseenter", () => {
+        isHovering = true;
+        ensureLoaded();
+
+        // Try unmuted first
         video.muted = false;
-        video.play().catch((err) => console.log("Play failed:", err));
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Unmuted play blocked by autoplay policy — fall back to muted
+            if (isHovering) {
+              video.muted = true;
+              video.play().catch((err) => console.log("Muted play also failed:", err));
+            }
+          });
+        }
       });
 
       projectDiv.addEventListener("mouseleave", () => {
+        isHovering = false;
         video.muted = true;
         video.pause();
         video.currentTime = 0;
+      });
+
+      // After any click on this card, the page has a user gesture —
+      // future hovers can unmute. Also immediately unmute if playing.
+      projectDiv.addEventListener("click", () => {
+        if (video.muted && !video.paused) {
+          video.muted = false;
+        }
       });
     }
 
@@ -258,7 +298,6 @@ function displayProjects(records) {
           // Will collapse - mute and pause video
           video.muted = true;
           video.pause();
-          video.currentTime = 0;
         }
       }
       
@@ -271,6 +310,120 @@ function displayProjects(records) {
 
   // Update counter at bottom
   updateProjectCounter(filteredRecords.length, totalProjectCount);
+
+  if (isMobileDevice()) {
+    // Mobile: force iOS Safari to render video thumbnails via play/pause cycle
+    forceIOSVideoThumbnails(container);
+  } else {
+    // Desktop: progressively upgrade preload as videos approach viewport
+    // so they're buffered and ready for instant hover playback.
+    // Videos start with preload="metadata" (first frame thumbnail),
+    // then switch to preload="auto" when near viewport.
+    preloadDesktopVideos(container);
+  }
+}
+
+// Desktop: progressively buffer videos as they approach the viewport
+// so hover playback starts instantly without waiting for data to load.
+function preloadDesktopVideos(container) {
+  const videos = container.querySelectorAll('video.project-video');
+  if (!videos.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const video = entry.target;
+        observer.unobserve(video);
+        if (video.preload !== 'auto') {
+          video.preload = 'auto';
+        }
+      }
+    });
+  }, {
+    rootMargin: '400px', // Start buffering well before visible
+    threshold: 0
+  });
+
+  videos.forEach((video) => observer.observe(video));
+}
+
+// Force iOS to paint video first frames as thumbnails
+function forceIOSVideoThumbnails(container) {
+  const videos = container.querySelectorAll('video.project-video');
+  if (!videos.length) return;
+
+  // Queue of videos that need thumbnails painted, processed sequentially
+  // to avoid saturating mobile bandwidth with parallel downloads.
+  const pendingVideos = [];
+  let isProcessing = false;
+
+  function processNext() {
+    if (pendingVideos.length === 0) {
+      isProcessing = false;
+      return;
+    }
+    isProcessing = true;
+    const video = pendingVideos.shift();
+
+    video.muted = true;
+
+    const paintFrame = () => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Wait for iOS compositor to fully render the frame
+          setTimeout(() => {
+            const card = video.closest('.project-card');
+            if (!card || !card.classList.contains('expanded')) {
+              video.pause();
+            }
+            // Process the next video in the queue
+            processNext();
+          }, 200);
+        }).catch((err) => {
+          console.log('iOS thumbnail paint failed:', err);
+          // Continue to next video even on failure
+          processNext();
+        });
+      } else {
+        processNext();
+      }
+    };
+
+    if (video.readyState >= 2) {
+      paintFrame();
+    } else {
+      video.addEventListener('loadeddata', paintFrame, { once: true });
+      // Add a timeout so one stalled video doesn't block the whole queue
+      setTimeout(() => {
+        if (video.readyState < 2) {
+          video.removeEventListener('loadeddata', paintFrame);
+          processNext();
+        }
+      }, 8000);
+      if (video.readyState === 0) {
+        video.load();
+      }
+    }
+  }
+
+  // Use IntersectionObserver to feed the queue as videos enter viewport
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        observer.unobserve(entry.target);
+        pendingVideos.push(entry.target);
+        if (!isProcessing) {
+          processNext();
+        }
+      }
+    });
+  }, { 
+    rootMargin: '300px',
+    threshold: 0 
+  });
+
+  videos.forEach((video) => observer.observe(video));
 }
 
 // Toggle project expansion within the grid
@@ -287,7 +440,6 @@ function toggleProjectExpansion(projectDiv, record) {
         if (otherVideo) {
           otherVideo.muted = true;
           otherVideo.pause();
-          otherVideo.currentTime = 0;
         }
       }
       collapseProject(card);
@@ -318,7 +470,9 @@ function collapseProject(projectDiv) {
     if (video) {
       video.muted = true;
       video.pause();
-      video.currentTime = 0;
+      // Do NOT reset currentTime — on iOS this clears the painted
+      // thumbnail frame. The video will restart from the beginning
+      // when played again via load() in the click handler anyway.
     }
   }
 
