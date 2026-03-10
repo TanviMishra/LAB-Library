@@ -112,94 +112,6 @@ function shuffleArray(array) {
   return shuffled;
 }
 
-/**
- * Generates a thumbnail for a video by seeking to 0.5s and drawing to canvas.
- * Returns a Promise that resolves to a data URL, or null on failure.
- * Works on desktop. On iOS, falls back gracefully — the poster attribute handles it.
- */
-function generateVideoThumbnail(src) {
-  return new Promise((resolve) => {
-    const tempVideo = document.createElement("video");
-    tempVideo.crossOrigin = "anonymous";
-    tempVideo.muted = true;
-    tempVideo.playsInline = true;
-    tempVideo.preload = "metadata";
-
-    const cleanup = () => {
-      tempVideo.src = "";
-      tempVideo.load();
-    };
-
-    const timeout = setTimeout(() => {
-      cleanup();
-      resolve(null);
-    }, 8000);
-
-    tempVideo.addEventListener("loadeddata", () => {
-      try {
-        const canvas = document.createElement("canvas");
-        canvas.width = tempVideo.videoWidth || 640;
-        canvas.height = tempVideo.videoHeight || 360;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(tempVideo, 0, 0, canvas.width, canvas.height);
-        const dataURL = canvas.toDataURL("image/jpeg", 0.85);
-        clearTimeout(timeout);
-        cleanup();
-        resolve(dataURL);
-      } catch (e) {
-        clearTimeout(timeout);
-        cleanup();
-        resolve(null);
-      }
-    }, { once: true });
-
-    tempVideo.addEventListener("error", () => {
-      clearTimeout(timeout);
-      cleanup();
-      resolve(null);
-    }, { once: true });
-
-    tempVideo.src = src + "#t=0.5";
-    tempVideo.load();
-  });
-}
-
-/**
- * Builds the <video> element HTML string. On iOS we rely on the poster attribute
- * (set later via JS) so the first frame is visible before interaction.
- * On desktop we also set poster so there's no black flash.
- */
-function buildVideoHTML(videoField) {
-  // poster will be set dynamically after thumbnail generation
-  return `
-    <video class="project-video"
-           preload="none"
-           loop
-           muted
-           playsinline
-           data-src="${videoField}">
-      <source src="${videoField}" type="video/mp4">
-      <source src="${videoField}" type="video/quicktime">
-      Your browser doesn't support video.
-    </video>
-  `;
-}
-
-/**
- * After the card is in the DOM, generate a thumbnail and set it as the
- * video poster so it's visible immediately on all browsers including iOS.
- */
-async function attachVideoThumbnail(videoEl) {
-  if (!videoEl) return;
-  const src = videoEl.dataset.src || videoEl.querySelector("source")?.src;
-  if (!src) return;
-
-  const thumbnail = await generateVideoThumbnail(src);
-  if (thumbnail) {
-    videoEl.poster = thumbnail;
-  }
-}
-
 // Display projects in grid
 function displayProjects(records) {
   allRecords = records; // Store all records globally
@@ -247,7 +159,17 @@ function displayProjects(records) {
 
     // Handle video
     if (videoField && videoField.trim() !== "") {
-      mediaHTML = buildVideoHTML(videoField);
+      mediaHTML = `
+                <video class="project-video" 
+                       preload="auto"
+                       loop 
+                       muted
+                       playsinline>
+                    <source src="${videoField}#t=0.001"" type="video/mp4">
+                    <source src="${videoField}#t=0.001"" type="video/quicktime">
+                    Your browser doesn't support video.
+                </video>
+            `;
     }
     // If no video, check for image
     else if (imageField && imageField.trim() !== "") {
@@ -267,32 +189,33 @@ function displayProjects(records) {
     const madeWithText = materialsString.trim();
 
     projectDiv.innerHTML = `
-      <div class="project-video-container">
-          ${mediaHTML}
-      </div>
-      <h3 class="project-name">${projectName}</h3>
-      <div class="project-info" style="display: none;">
-          <div class="project-meta">
-              ${teamText ? `<p class="project-team">by ${teamText}</p>` : ""}
-              ${yearText ? `<p class="project-year">${yearText}</p>` : ""}
-          </div>
-      </div>
-      <div class="project-brief" style="display: none;">
-          ${brief ? `<p>${brief}</p>` : ""}
-      </div>
-    `;
+            <div class="project-video-container">
+                ${mediaHTML}
+            </div>
+            <h3 class="project-name">${projectName}</h3>
+            <div class="project-info" style="display: none;">
+                <div class="project-meta">
+                    ${
+                      teamText
+                        ? `<p class="project-team">by ${teamText}</p>`
+                        : ""
+                    }
+                    ${yearText ? `<p class="project-year">${yearText}</p>` : ""}
+                </div>
+            </div>
+            <div class="project-brief" style="display: none;">
+                ${brief ? `<p>${brief}</p>` : ""}
+            </div>
+        `;
 
+    // Add hover functionality for videos (not images) - desktop only
     const video = projectDiv.querySelector(".project-video");
     const isMobile = isMobileDevice();
-
+    
     if (video && !isMobile) {
-      // Desktop: hover to unmute and play
+      // Desktop: hover to unmute, play video
       projectDiv.addEventListener("mouseenter", () => {
         video.muted = false;
-        // Ensure src is loaded before playing
-        if (!video.src && video.dataset.src) {
-          video.src = video.dataset.src;
-        }
         video.play().catch((err) => console.log("Play failed:", err));
       });
 
@@ -306,50 +229,49 @@ function displayProjects(records) {
     // Click handler - different behavior for mobile vs desktop
     projectDiv.addEventListener("click", () => {
       const isExpanded = projectDiv.classList.contains("expanded");
-
+      
       if (isMobile && video) {
+        // Mobile: load, unmute and play video when expanding, mute and pause when collapsing
         if (!isExpanded) {
-          // Expanding: load and play on user interaction (required by iOS)
-          if (!video.src || video.src === window.location.href) {
-            // Set src from data-src so iOS loads it on this user gesture
-            const source = video.querySelector("source");
-            if (source) {
-              video.src = source.src;
-            }
-          }
+          // Will expand - iOS requires explicit load() call on user interaction
+          console.log("iOS: Loading video, readyState:", video.readyState);
           video.load();
-
+          
+          // Wait for video metadata to load, then unmute and play
           const playVideo = () => {
+            console.log("iOS: Attempting to play, readyState:", video.readyState);
             video.muted = false;
             video.play().catch((err) => {
               console.log("iOS Play failed:", err);
+              console.log("Video diagnostics - readyState:", video.readyState, "networkState:", video.networkState, "error:", video.error);
             });
           };
-
+          
           if (video.readyState >= 1) {
+            // Video has metadata, can play
             playVideo();
           } else {
-            video.addEventListener("loadedmetadata", playVideo, { once: true });
+            // Wait for metadata to load
+            video.addEventListener('loadedmetadata', playVideo, { once: true });
           }
         } else {
-          // Collapsing: pause
+          // Will collapse - mute and pause video
           video.muted = true;
           video.pause();
           video.currentTime = 0;
         }
       }
-
+      
       // Both mobile and desktop: toggle expand/collapse
       toggleProjectExpansion(projectDiv, record);
     });
 
     container.appendChild(projectDiv);
-
-    // Generate and attach thumbnail after card is in DOM.
-    // Uses requestIdleCallback (or setTimeout fallback) to avoid blocking render.
+    // Force iOS to render first frame as thumbnail
     if (video) {
-      const scheduleThumb = window.requestIdleCallback || ((cb) => setTimeout(cb, 100));
-      scheduleThumb(() => attachVideoThumbnail(video));
+      video.addEventListener('loadedmetadata', () => {
+        video.currentTime = 0.001;
+      }, { once: true });
     }
   });
 
@@ -584,6 +506,7 @@ function updateFilterDisplay() {
 // Toggle dropdown menu
 function toggleDropdown() {
   const dropdownMenu = document.getElementById("dropdown-menu");
+  const placeholder = document.getElementById("filter-placeholder");
 
   if (dropdownMenu.classList.contains("show")) {
     dropdownMenu.classList.remove("show");
