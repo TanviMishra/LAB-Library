@@ -216,20 +216,53 @@ function displayProjects(records) {
     const isMobile = isMobileDevice();
     
     if (video && !isMobile) {
-      // Desktop: hover to play and unmute
-      // Chrome requires play() to start muted (allowed without gesture),
-      // then we unmute after playback begins.
+      // Track whether this video has had its data loaded
+      let videoReady = false;
+      let isHovering = false;
+
+      // Start loading video data on first mouseenter so frames are buffered
+      const ensureLoaded = () => {
+        if (!videoReady && video.preload !== 'auto') {
+          video.preload = 'auto';
+          video.load();
+        }
+      };
+
+      // Desktop: hover to play video with audio
+      // Strategy: always attempt unmuted play first (works after any user
+      // gesture on the page). If that fails (Firefox/Chrome autoplay policy),
+      // fall back to muted play so the video still animates visually.
       projectDiv.addEventListener("mouseenter", () => {
-        video.muted = true;
-        video.play().then(() => {
-          video.muted = false;
-        }).catch((err) => console.log("Play failed:", err));
+        isHovering = true;
+        ensureLoaded();
+
+        // Try unmuted first
+        video.muted = false;
+        const playPromise = video.play();
+        if (playPromise !== undefined) {
+          playPromise.catch(() => {
+            // Unmuted play blocked by autoplay policy — fall back to muted
+            if (isHovering) {
+              video.muted = true;
+              video.play().catch((err) => console.log("Muted play also failed:", err));
+            }
+          });
+        }
       });
 
       projectDiv.addEventListener("mouseleave", () => {
+        isHovering = false;
         video.muted = true;
         video.pause();
         video.currentTime = 0;
+      });
+
+      // After any click on this card, the page has a user gesture —
+      // future hovers can unmute. Also immediately unmute if playing.
+      projectDiv.addEventListener("click", () => {
+        if (video.muted && !video.paused) {
+          video.muted = false;
+        }
       });
     }
 
@@ -278,12 +311,40 @@ function displayProjects(records) {
   // Update counter at bottom
   updateProjectCounter(filteredRecords.length, totalProjectCount);
 
-  // Force iOS Safari to render video thumbnails (mobile only).
-  // Desktop browsers render the first frame via preload without issue.
-  // On desktop, this play/pause cycle interferes with hover playback.
   if (isMobileDevice()) {
+    // Mobile: force iOS Safari to render video thumbnails via play/pause cycle
     forceIOSVideoThumbnails(container);
+  } else {
+    // Desktop: progressively upgrade preload as videos approach viewport
+    // so they're buffered and ready for instant hover playback.
+    // Videos start with preload="metadata" (first frame thumbnail),
+    // then switch to preload="auto" when near viewport.
+    preloadDesktopVideos(container);
   }
+}
+
+// Desktop: progressively buffer videos as they approach the viewport
+// so hover playback starts instantly without waiting for data to load.
+function preloadDesktopVideos(container) {
+  const videos = container.querySelectorAll('video.project-video');
+  if (!videos.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const video = entry.target;
+        observer.unobserve(video);
+        if (video.preload !== 'auto') {
+          video.preload = 'auto';
+        }
+      }
+    });
+  }, {
+    rootMargin: '400px', // Start buffering well before visible
+    threshold: 0
+  });
+
+  videos.forEach((video) => observer.observe(video));
 }
 
 // Force iOS to paint video first frames as thumbnails
