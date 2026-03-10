@@ -213,10 +213,14 @@ function displayProjects(records) {
     const isMobile = isMobileDevice();
     
     if (video && !isMobile) {
-      // Desktop: hover to unmute, play video
+      // Desktop: hover to play and unmute
+      // Chrome requires play() to start muted (allowed without gesture),
+      // then we unmute after playback begins.
       projectDiv.addEventListener("mouseenter", () => {
-        video.muted = false;
-        video.play().catch((err) => console.log("Play failed:", err));
+        video.muted = true;
+        video.play().then(() => {
+          video.muted = false;
+        }).catch((err) => console.log("Play failed:", err));
       });
 
       projectDiv.addEventListener("mouseleave", () => {
