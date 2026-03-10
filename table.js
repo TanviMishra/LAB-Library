@@ -159,9 +159,12 @@ function displayProjects(records) {
 
     // Handle video
     if (videoField && videoField.trim() !== "") {
+      // Desktop: preload metadata so the browser renders the first frame
+      // Mobile: preload none — the thumbnail painter handles loading sequentially
+      const preloadValue = isMobileDevice() ? "none" : "metadata";
       mediaHTML = `
                 <video class="project-video" 
-                       preload="none"
+                       preload="${preloadValue}"
                        loop 
                        muted
                        playsinline>
@@ -275,13 +278,12 @@ function displayProjects(records) {
   // Update counter at bottom
   updateProjectCounter(filteredRecords.length, totalProjectCount);
 
-  // Force iOS Safari to render video thumbnails
-  // iOS won't decode/paint a video frame until play() is called.
-  // For muted+playsinline videos, autoplay is allowed by policy,
-  // but iOS often still won't paint until the element is in-viewport.
-  // We use IntersectionObserver to play->pause each video once visible,
-  // which forces the first frame to render as a persistent thumbnail.
-  forceIOSVideoThumbnails(container);
+  // Force iOS Safari to render video thumbnails (mobile only).
+  // Desktop browsers render the first frame via preload without issue.
+  // On desktop, this play/pause cycle interferes with hover playback.
+  if (isMobileDevice()) {
+    forceIOSVideoThumbnails(container);
+  }
 }
 
 // Force iOS to paint video first frames as thumbnails
