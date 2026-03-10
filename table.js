@@ -165,8 +165,8 @@ function displayProjects(records) {
                        loop 
                        muted
                        playsinline>
-                    <source src="${videoField}#t=0.001"" type="video/mp4">
-                    <source src="${videoField}#t=0.001"" type="video/quicktime">
+                    <source src="${videoField}" type="video/mp4">
+                    <source src="${videoField}" type="video/quicktime">
                     Your browser doesn't support video.
                 </video>
             `;
@@ -267,16 +267,73 @@ function displayProjects(records) {
     });
 
     container.appendChild(projectDiv);
-    // Force iOS to render first frame as thumbnail
-    if (video) {
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = 0.001;
-      }, { once: true });
-    }
   });
 
   // Update counter at bottom
   updateProjectCounter(filteredRecords.length, totalProjectCount);
+
+  // Force iOS Safari to render video thumbnails
+  // iOS won't decode/paint a video frame until play() is called.
+  // For muted+playsinline videos, autoplay is allowed by policy,
+  // but iOS often still won't paint until the element is in-viewport.
+  // We use IntersectionObserver to play->pause each video once visible,
+  // which forces the first frame to render as a persistent thumbnail.
+  forceIOSVideoThumbnails(container);
+}
+
+// Force iOS to paint video first frames as thumbnails
+function forceIOSVideoThumbnails(container) {
+  const videos = container.querySelectorAll('video.project-video');
+  if (!videos.length) return;
+
+  // Use IntersectionObserver to trigger play/pause when video enters viewport
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const video = entry.target;
+        observer.unobserve(video); // Only need to do this once per video
+
+        // Ensure video is muted (required for autoplay policy)
+        video.muted = true;
+
+        const paintFrame = () => {
+          // Play briefly to force frame decode, then immediately pause
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise.then(() => {
+              // Small delay to ensure the frame is actually painted
+              requestAnimationFrame(() => {
+                // Only pause if the card isn't expanded (user hasn't interacted)
+                const card = video.closest('.project-card');
+                if (!card || !card.classList.contains('expanded')) {
+                  video.pause();
+                  video.currentTime = 0;
+                }
+              });
+            }).catch((err) => {
+              console.log('iOS thumbnail paint failed:', err);
+            });
+          }
+        };
+
+        // If video data is ready, paint immediately; otherwise wait
+        if (video.readyState >= 2) { // HAVE_CURRENT_DATA
+          paintFrame();
+        } else {
+          video.addEventListener('loadeddata', paintFrame, { once: true });
+          // Trigger load if needed
+          if (video.readyState === 0) {
+            video.load();
+          }
+        }
+      }
+    });
+  }, { 
+    rootMargin: '200px', // Start loading slightly before visible
+    threshold: 0 
+  });
+
+  videos.forEach((video) => observer.observe(video));
 }
 
 // Toggle project expansion within the grid
