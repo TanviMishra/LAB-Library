@@ -161,7 +161,7 @@ function displayProjects(records) {
     if (videoField && videoField.trim() !== "") {
       mediaHTML = `
                 <video class="project-video" 
-                       preload="auto"
+                       preload="none"
                        loop 
                        muted
                        playsinline>
@@ -173,7 +173,7 @@ function displayProjects(records) {
     }
     // If no video, check for image
     else if (imageField && imageField.trim() !== "") {
-      mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}">`;
+      mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}" loading="lazy" decoding="async">`;
     }
 
     // Placeholder if no media
@@ -285,54 +285,74 @@ function forceIOSVideoThumbnails(container) {
   const videos = container.querySelectorAll('video.project-video');
   if (!videos.length) return;
 
-  // Use IntersectionObserver to trigger play/pause when video enters viewport
+  // Queue of videos that need thumbnails painted, processed sequentially
+  // to avoid saturating mobile bandwidth with parallel downloads.
+  const pendingVideos = [];
+  let isProcessing = false;
+
+  function processNext() {
+    if (pendingVideos.length === 0) {
+      isProcessing = false;
+      return;
+    }
+    isProcessing = true;
+    const video = pendingVideos.shift();
+
+    video.muted = true;
+
+    const paintFrame = () => {
+      const playPromise = video.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          // Wait for iOS compositor to fully render the frame
+          setTimeout(() => {
+            const card = video.closest('.project-card');
+            if (!card || !card.classList.contains('expanded')) {
+              video.pause();
+            }
+            // Process the next video in the queue
+            processNext();
+          }, 200);
+        }).catch((err) => {
+          console.log('iOS thumbnail paint failed:', err);
+          // Continue to next video even on failure
+          processNext();
+        });
+      } else {
+        processNext();
+      }
+    };
+
+    if (video.readyState >= 2) {
+      paintFrame();
+    } else {
+      video.addEventListener('loadeddata', paintFrame, { once: true });
+      // Add a timeout so one stalled video doesn't block the whole queue
+      setTimeout(() => {
+        if (video.readyState < 2) {
+          video.removeEventListener('loadeddata', paintFrame);
+          processNext();
+        }
+      }, 8000);
+      if (video.readyState === 0) {
+        video.load();
+      }
+    }
+  }
+
+  // Use IntersectionObserver to feed the queue as videos enter viewport
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        const video = entry.target;
-        observer.unobserve(video); // Only need to do this once per video
-
-        // Ensure video is muted (required for autoplay policy)
-        video.muted = true;
-
-        const paintFrame = () => {
-          // Play briefly to force frame decode
-          const playPromise = video.play();
-          if (playPromise !== undefined) {
-            playPromise.then(() => {
-              // Wait multiple frames to ensure iOS has fully composited
-              // A single rAF is not enough — iOS needs the frame to
-              // pass through its compositor pipeline before pause is safe.
-              // Using setTimeout with ~100ms gives the GPU time to
-              // decode, composite, and render the frame to screen.
-              setTimeout(() => {
-                const card = video.closest('.project-card');
-                if (!card || !card.classList.contains('expanded')) {
-                  video.pause();
-                  // Do NOT set currentTime — on iOS, seeking a paused
-                  // video clears the painted frame from the compositor.
-                }
-              }, 150);
-            }).catch((err) => {
-              console.log('iOS thumbnail paint failed:', err);
-            });
-          }
-        };
-
-        // If video data is ready, paint immediately; otherwise wait
-        if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-          paintFrame();
-        } else {
-          video.addEventListener('loadeddata', paintFrame, { once: true });
-          // Trigger load if needed
-          if (video.readyState === 0) {
-            video.load();
-          }
+        observer.unobserve(entry.target);
+        pendingVideos.push(entry.target);
+        if (!isProcessing) {
+          processNext();
         }
       }
     });
   }, { 
-    rootMargin: '200px', // Start loading slightly before visible
+    rootMargin: '300px',
     threshold: 0 
   });
 
