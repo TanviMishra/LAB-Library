@@ -1,6 +1,28 @@
 :root {
     --color-text: #333;
     --color-background: #fff;
+    --padding-s: 15px;
+    --padding-l: 40px;
+    --margin-s: 100px;
+    --margin-l: 200px;
+
+    --font-h1-family: "Atlas Grotesk", sans-serif;
+    --font-h1-size: 36px;
+    --font-h1-weight: 300;
+    --font-h1-line-height: 60px;
+    --font-h1-letter-spacing: 0;
+
+    --font-h2-family: "Atlas Grotesk", sans-serif;
+    --font-h2-size: 15px;
+    --font-h2-weight: 400;
+    --font-h2-line-height: 20px;
+    --font-h2-letter-spacing: 0;
+
+    --font-p-family: "Atlas Grotesk", sans-serif;
+    --font-p-size: 13px;
+    --font-p-weight: 400;
+    --font-p-line-height: var(--padding-s);
+    --font-p-letter-spacing: 0;
 }
 
 body {

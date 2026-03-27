@@ -1,0 +1,317 @@
+/* CLASS STYLES */
+
+.filter-list{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-s);
+}
+
+a.filter-option{
+    font-family: var(--font-p-family);
+    font-weight: var(--font-p-weight);
+    color: var(--gray);
+    text-decoration: none;
+    cursor: pointer;
+    margin-left: var(--padding-s);
+}
+
+a.filter-option:hover{
+    color: var(--white);
+}
+
+a.filter-option:focus-visible{
+    color: var(--white);
+    outline: none;
+}
+
+a.filter-option.selected{
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: -5px;
+    
+}
+
+a.filter-option.selected::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--white);
+    flex-shrink: 0;
+}
+
+.project-card{
+    width: 100%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-self: start;
+    gap: var(--padding-s);
+    cursor: zoom-in;
+}
+
+.project-video-container{
+    width: 100%;
+    flex-shrink: 0;
+    aspect-ratio: 3 / 2;
+    overflow: hidden;
+    position: relative;
+    background-color: var(--black);
+    cursor: zoom-in;
+}
+
+.project-video,
+.project-image{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    /* background-color: var(--yellow); */
+}
+
+.project-name{
+    margin: 0;
+}
+
+/* Matches commented structure in index: meta is direct child of .project-card (no .project-info) */
+.project-meta{
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: 20px;
+    row-gap: 6px;
+    align-items: baseline;
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    color: var(--gray);
+}
+
+.project-team,
+.project-year{
+    margin: 0;
+}
+
+.project-brief{
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    line-height: 1.6;
+    color: var(--gray);
+}
+
+.project-brief p{
+    margin: 0;
+}
+
+.project-brief p + p{
+    margin-top: var(--padding-s);
+}
+
+/* ID STYLES */
+#library{
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-s);
+}
+
+#library-title{
+    margin: 0;
+}
+
+/* Figma 4309:224 — “Tag Selected”: one line, h1 + gap + underlined tag (replaces ________). */
+#library-heading-line{
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--padding-s);
+    font-family: var(--font-h1-family);
+    font-size: var(--font-h1-size);
+    font-weight: var(--font-h1-weight);
+    line-height: 60px;
+    text-transform: uppercase;
+}
+
+#library-heading-line .library-title-prefix{
+    flex-shrink: 0;
+}
+
+#library-placeholder{
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#library-selected-tag{
+    display: contents;
+}
+
+#library-heading-line .library-selected-inline-tag{
+    text-decoration: underline;
+    text-decoration-skip-ink: none;
+    text-underline-offset: 0.12em;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+#library-heading-line .library-selected-inline-tag:hover{
+    color: var(--gray);
+}
+
+#library-title:hover #library-heading-line{
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#library-filter{
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--padding-s);
+}
+
+#library-filter li{
+    width: fit-content;
+    height: fit-content;
+    list-style: none;
+}
+
+/* Header tag chips — Figma 4327:255; styles only under #library-filter (not .filter-option) */
+#library-filter a{
+    font-family: var(--font-h2-family);
+    font-size: var(--font-h2-size);
+    font-weight: var(--font-h2-weight);
+    line-height: var(--font-h2-line-height);
+    text-transform: uppercase;
+    color: var(--gray);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#library-filter a:hover{
+    color: var(--white);
+}
+
+#library-filter a:focus-visible{
+    color: var(--white);
+    outline: none;
+}
+
+#library-filter a.selected{
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#library-filter a.selected::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--white);
+    flex-shrink: 0;
+}
+
+#intro-text{
+    width: 60% !important;
+}
+
+#projects{
+    display: grid;
+    grid-template-columns: var(--grid-columns);
+    gap: var(--margin-s);
+    align-items: start;
+    position: sticky;
+    top: var(--margin-l);
+    z-index: 1;
+    /* background-color: yellow; */
+}
+
+#projects-filter{
+    grid-column: 1;
+    grid-row: 1 / -1;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-s);
+    min-width: 0;
+    border-top: 2px solid var(--white);
+    padding-top: var(--padding-l);
+}
+
+#projects-filter > a{
+    margin: 0;
+    font-family: var(--font-h2-family);
+    font-size: var(--font-h2-size);
+    font-weight: var(--font-h2-weight);
+    line-height: var(--font-h2-line-height);
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    cursor: pointer;
+    width: fit-content;
+}
+
+#projects-filter > a:hover{
+    color: var(--gray);
+}
+
+#projects-filter > a:focus-visible{
+    color: var(--gray);
+    outline: none;
+}
+
+#projects-filter > a.selected{
+    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#projects-filter > a.selected::before{
+    content: "";
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: var(--white);
+    flex-shrink: 0;
+}
+
+.project-whatif-statement{
+    font-style: italic;
+    color: var(--gray);
+    margin: 0 0 var(--padding-s) 0;
+}
+
+.project-whatif-statement:last-child{
+    margin-bottom: 0;
+}
+
+#projects-grid{
+    grid-column: 2 / -1;
+    display: grid;
+    grid-template-columns: var(--projects-grid-columns);
+    row-gap: var(--padding-l);
+    column-gap: var(--padding-s);
+    align-content: start;
+    min-width: 0;
+    border-top: 2px solid var(--white);
+    padding-top: var(--padding-l);
+}
+
+#project-counter{
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: right;
+    color: var(--gray);
+}

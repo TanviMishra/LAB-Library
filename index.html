@@ -5,28 +5,75 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LAB R&D Library</title>
     <link rel="icon" type="image/webp" href="Assets/Images/LAB-favicon-resized.svg">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="./Style/style.css">
+    <link rel="stylesheet" href="./Style/home.css">
 </head>
 <body>
-    <div class="filter-container">
-        <div class="library-header">
-            <div class="library-title">
-                A
-                <img src="Assets/Images/LAB-favicon.webp" alt="LABrary" height="24px">
-                R&D Library of
+    <header>
+        <section id="library">
+            <div id="library-title">
+                <h1 id="library-heading-line">
+                    <span class="library-title-prefix">LAB R&D Library of</span>
+                    <span id="library-placeholder">________</span>
+                    <span id="library-selected-tag"></span>
+                </h1>
             </div>
-            <div class="library-nav">
-                <span class="filter-placeholder" id="filter-placeholder">________</span>
-                <div class="selected-tags" id="selected-tags"></div>
-                <span class="dropdown-menu" id="dropdown-menu"></span>
-            </div>
-        </div>
-        
-    </div>
-    <p id="intro-text">At the <a href="https://www.rockwellgroup.com/lab">LAB at Rockwell Group</a>, we have a robust R&D practice that explores new technologies and materials in service of building our creative practice, improving client facing work and nurturing curiosities. This library is a collection of some of our experiments.</p>
-    <div id="projects-container">
-        <!-- Projects will be dynamically loaded here -->
-    </div>
+            <ul id="library-filter">
+                    <!-- <li><a class="library-filter-link"> </li> -->
+                    <!-- <li><a class="library-filter-link"> </li> -->
+            </ul>
+        </section>
+        <a href="./about.html">about the process</a>
+    </header>
+    <main>
+        <p id="intro-text">At the <a href="https://www.rockwellgroup.com/lab">LAB at Rockwell Group</a>, we have a robust R&D practice that explores new technologies and materials in service of building our creative practice, improving client facing work and nurturing curiosities. This library is a collection of some of our experiments.</p>
+        <section id="projects">
+            <section id="projects-filter">
+                <a href="#" id="what-ifs">What Ifs</a>
+
+                <a   href="#" id="tools">Tools</a>
+
+                <!-- tools will be dynamically loaded here -->
+                <div id="library-tool-options">
+                    <ul class="filter-list">
+                        <!-- <li><a class="filter-option"> </li> -->
+                        <!-- <li><a class="filter-option"> </li> -->
+                    </ul>
+                </div>
+    
+                <a href="#" id="year">Year</a>
+                
+                <!-- years will be dynamically loaded here -->
+                <div id="library-year-options">
+                    <ul class="filter-list">
+                        <!-- <li><a class="filter-option"> </li> -->
+                        <!-- <li><a class="filter-option"> </li> -->
+                    </ul>
+                </div>
+            </section>
+            <section id="projects-grid">
+                <!-- Projects will be dynamically loaded here -->
+                
+                <!-- <div class="project-card"> -->
+                    <!-- <div class="project-video-container"> -->
+                        <!-- <video class="project-video" src="Assets/Videos/Peppers Ghost.mp4" autoplay muted loop></video> -->
+                    <!-- </div> -->
+                    <!-- <h2 class="project-name">Project Name</h2> -->
+                    <!-- <div class="project-meta"> -->
+                            <!-- <p class="project-team">Team</p> -->
+                            <!-- <p class="project-year">Year</p> -->
+                        <!-- </div> -->
+                    <!-- </div> -->
+                    <!-- <p>Brief</p> -->
+                <!-- </div> -->
+                
+
+            </section>
+        </section>
+    </main>
+    <footer>
+        <p id="project-counter"></p>
+    </footer>
     <script src="table.js"></script>
 </body>
 </html>

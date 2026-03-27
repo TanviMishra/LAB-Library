@@ -2,11 +2,92 @@
 
 // Temporarily filter projects by year.
 // Set to null to show all years again.
-const TEMP_ONLY_YEAR = "2026";
+const TEMP_ONLY_YEAR = null;
+
+// Phase 1 naming contract: Figma source names -> code aliases -> DOM families.
+const FIGMA_NAME_CONTRACT = {
+  sourceNames: ["h1", "h2", "p", "Padding S", "Padding L", "Margin S", "Margin L"],
+  aliases: {
+    "Padding S": "paddingSm",
+    "Padding L": "paddingLg",
+    "Margin S": "marginSm",
+    "Margin L": "marginLg",
+    h1: "typeH1",
+    h2: "typeH2",
+    p: "typeBody",
+  },
+  domFamilies: ["library-*", "filter-*", "project-*"],
+};
+
+const DOM_IDS = {
+  projectsContainer: "projects-grid",
+  filterPlaceholder: "library-placeholder",
+  selectedTags: "library-selected-tag",
+  filterMenu: "library-filter",
+  introText: "intro-text",
+  projectCounter: "project-counter",
+  toolsHeading: "tools",
+  yearHeading: "year",
+  toolOptions: "library-tool-options",
+  yearOptions: "library-year-options",
+};
+
+const DOM_CLASSES = {
+  projectCard: "project-card",
+  expanded: "expanded",
+  collapsing: "collapsing",
+  projectVideo: "project-video",
+  projectImage: "project-image",
+  noVideo: "no-video",
+  projectVideoContainer: "project-video-container",
+  projectName: "project-name",
+  projectMeta: "project-meta",
+  projectTeam: "project-team",
+  projectYear: "project-year",
+  projectBrief: "project-brief",
+  filterOption: "filter-option",
+  /** Header tag chips in `#library-filter` only — not `.filter-option`. */
+  libraryFilterLink: "library-filter-link",
+  selected: "selected",
+  selectedTagInline: "library-selected-inline-tag",
+  filterList: "filter-list",
+  projectCardWhatIf: "project-card--what-if",
+  whatIfStatement: "project-whatif-statement",
+};
+
+/** When true, grid shows only projects with usable `What If` data; cards use What If image + statement + brief. */
+let whatIfsMode = false;
+
+function escapeHtml(text) {
+  if (text == null) return "";
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function getWhatIf(record) {
+  const w = record["What If"];
+  if (!w || typeof w !== "object") return null;
+  return w;
+}
+
+function hasWhatIfContent(record) {
+  const w = getWhatIf(record);
+  if (!w) return false;
+  const img = (w.Image || "").trim();
+  if (img && !/XX\.png$/i.test(img) && img !== "XX") return true;
+  const st = (w.Statement || "").trim();
+  if (st && st !== "XX") return true;
+  const br = (w.Brief || "").trim();
+  if (br && br !== "XX") return true;
+  return false;
+}
 
 // Load local JSON data
 function loadLocalData() {
-  fetch("data.json")
+  fetch("table.json")
     .then((response) => response.json())
     .then((data) => {
       const records = [];
@@ -31,13 +112,13 @@ function loadLocalData() {
         });
         displayProjects(records);
       } else {
-        document.getElementById("projects-container").innerHTML =
+        document.getElementById(DOM_IDS.projectsContainer).innerHTML =
           "<p>No projects found.</p>";
       }
     })
     .catch((error) => {
       console.error("Error loading data:", error);
-      document.getElementById("projects-container").innerHTML =
+      document.getElementById(DOM_IDS.projectsContainer).innerHTML =
         "<p>Error loading data.</p>";
     });
 }
@@ -45,7 +126,15 @@ function loadLocalData() {
 // Global variables for filtering
 let allRecords = [];
 let selectedFilters = [];
+let selectedTools = [];
+let selectedYears = [];
 let totalProjectCount = 0;
+
+function syncWhatIfsLinkSelectedState() {
+  const el = document.getElementById("what-ifs");
+  if (!el) return;
+  el.classList.toggle(DOM_CLASSES.selected, whatIfsMode);
+}
 
 function parseTags(tagsString) {
   if (!tagsString) return [];
@@ -53,6 +142,29 @@ function parseTags(tagsString) {
     .split(",")
     .map((tag) => tag.trim())
     .filter((tag) => tag);
+}
+
+function parseToolsList(toolsString) {
+  if (!toolsString) return [];
+  return toolsString
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t);
+}
+
+function ensureFilterOptionContainers() {
+  const pairs = [
+    [DOM_IDS.toolOptions, DOM_IDS.toolsHeading],
+    [DOM_IDS.yearOptions, DOM_IDS.yearHeading],
+  ];
+  pairs.forEach(([id, afterId]) => {
+    if (document.getElementById(id)) return;
+    const wrap = document.createElement("div");
+    wrap.id = id;
+    wrap.className = "filter-options";
+    const after = document.getElementById(afterId);
+    if (after) after.insertAdjacentElement("afterend", wrap);
+  });
 }
 
 function parseDate(dateString) {
@@ -84,7 +196,7 @@ function isMobileDevice() {
 // Display projects in grid
 function displayProjects(records) {
   allRecords = records;
-  const container = document.getElementById("projects-container");
+  const container = document.getElementById(DOM_IDS.projectsContainer);
   container.innerHTML = "";
 
   const validRecords = records.filter((record) => {
@@ -93,20 +205,29 @@ function displayProjects(records) {
     return projectName && projectName.trim() !== "" && isActive;
   });
 
-  const filteredRecords =
-    selectedFilters.length > 0
-      ? validRecords.filter((record) => {
-          const tags = parseTags(record["Tags"] || "");
-          return selectedFilters.some((filter) => tags.includes(filter));
-        })
-      : validRecords;
+  const filteredRecords = validRecords.filter((record) => {
+    if (whatIfsMode && !hasWhatIfContent(record)) return false;
+
+    const tags = parseTags(record["Tags"] || "");
+    if (selectedFilters.length > 0 && !selectedFilters.some((f) => tags.includes(f))) return false;
+
+    const projectTools = parseToolsList(record["Tools"] || "");
+    if (selectedTools.length > 0 && !selectedTools.some((t) => projectTools.includes(t))) return false;
+
+    const y = extractYear(record["Date"]) || record.year || "";
+    if (selectedYears.length > 0 && !selectedYears.includes(y)) return false;
+
+    return true;
+  });
 
   populateTagFilter(validRecords);
+  ensureFilterOptionContainers();
+  populateSecondaryFilters(validRecords);
   totalProjectCount = validRecords.length;
 
   filteredRecords.forEach((record) => {
     const projectDiv = document.createElement("div");
-    projectDiv.className = "project-card";
+    projectDiv.className = DOM_CLASSES.projectCard;
 
     const projectName = record["Project"];
     const videoField = record["Video"];
@@ -115,15 +236,42 @@ function displayProjects(records) {
     const yearText = extractYear(dateField) || record.year || "";
     const teamText = (record["Team"] || "").trim();
     const brief = record["Brief"] || "";
+    const whatIf = getWhatIf(record);
+    const useWhatIfLayout = whatIfsMode && whatIf && hasWhatIfContent(record);
 
     let mediaHTML = "";
 
+    if (useWhatIfLayout) {
+      projectDiv.classList.add(DOM_CLASSES.projectCardWhatIf);
+      const wiImg = (whatIf.Image || "").trim();
+      const wiBrief = (whatIf.Brief || "").trim();
+      const wiStatement = (whatIf.Statement || "").trim();
+      if (wiImg && !/XX\.png$/i.test(wiImg)) {
+        mediaHTML = `<img class="${DOM_CLASSES.projectImage}" src="${wiImg}" alt="${escapeHtml(projectName)}" loading="lazy" decoding="async">`;
+      } else {
+        mediaHTML = `<div class="${DOM_CLASSES.noVideo}">No What If image</div>`;
+      }
+      const briefInner = [
+        wiStatement
+          ? `<p class="${DOM_CLASSES.whatIfStatement}">${escapeHtml(wiStatement)}</p>`
+          : "",
+        wiBrief ? `<p>${escapeHtml(wiBrief)}</p>` : "",
+      ].join("");
+      projectDiv.innerHTML = `
+      <div class="${DOM_CLASSES.projectVideoContainer}">${mediaHTML}</div>
+      <h2 class="${DOM_CLASSES.projectName}">${escapeHtml(projectName)}</h2>
+      <div class="${DOM_CLASSES.projectMeta}" style="display: none;"></div>
+      <div class="${DOM_CLASSES.projectBrief}" style="display: none;">
+        ${briefInner}
+      </div>
+    `;
+    } else {
     if (videoField && videoField.trim() !== "") {
       // Desktop: preload="metadata" gives a first-frame thumbnail immediately.
       // Mobile: preload="none" — the thumbnail painter loads them in controlled batches.
       const preloadValue = isMobileDevice() ? "none" : "metadata";
       mediaHTML = `
-        <video class="project-video"
+        <video class="${DOM_CLASSES.projectVideo}"
                preload="${preloadValue}"
                loop
                muted
@@ -134,26 +282,25 @@ function displayProjects(records) {
         </video>
       `;
     } else if (imageField && imageField.trim() !== "") {
-      mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}" loading="lazy" decoding="async">`;
+      mediaHTML = `<img class="${DOM_CLASSES.projectImage}" src="${imageField}" alt="${projectName}" loading="lazy" decoding="async">`;
     } else {
-      mediaHTML = `<div class="no-video">No media available</div>`;
+      mediaHTML = `<div class="${DOM_CLASSES.noVideo}">No media available</div>`;
     }
 
     projectDiv.innerHTML = `
-      <div class="project-video-container">${mediaHTML}</div>
-      <h3 class="project-name">${projectName}</h3>
-      <div class="project-info" style="display: none;">
-        <div class="project-meta">
-          ${teamText ? `<p class="project-team">by ${teamText}</p>` : ""}
-          ${yearText ? `<p class="project-year">${yearText}</p>` : ""}
-        </div>
+      <div class="${DOM_CLASSES.projectVideoContainer}">${mediaHTML}</div>
+      <h2 class="${DOM_CLASSES.projectName}">${escapeHtml(projectName)}</h2>
+      <div class="${DOM_CLASSES.projectMeta}" style="display: none;">
+          ${teamText ? `<p class="${DOM_CLASSES.projectTeam}">by ${escapeHtml(teamText)}</p>` : ""}
+          ${yearText ? `<p class="${DOM_CLASSES.projectYear}">${escapeHtml(yearText)}</p>` : ""}
       </div>
-      <div class="project-brief" style="display: none;">
-        ${brief ? `<p>${brief}</p>` : ""}
+      <div class="${DOM_CLASSES.projectBrief}" style="display: none;">
+        ${brief ? `<p>${escapeHtml(brief)}</p>` : ""}
       </div>
     `;
+    }
 
-    const video = projectDiv.querySelector(".project-video");
+    const video = projectDiv.querySelector(`.${DOM_CLASSES.projectVideo}`);
     const isMobile = isMobileDevice();
 
     // ── Desktop hover behaviour ──────────────────────────────────────
@@ -199,7 +346,7 @@ function displayProjects(records) {
 
     // ── Click handler (mobile + desktop expand/collapse) ─────────────
     projectDiv.addEventListener("click", () => {
-      const isExpanded = projectDiv.classList.contains("expanded");
+      const isExpanded = projectDiv.classList.contains(DOM_CLASSES.expanded);
 
       if (isMobile && video) {
         if (!isExpanded) {
@@ -236,7 +383,7 @@ function displayProjects(records) {
 
 // ── Desktop: buffer videos before they reach the viewport ────────────────────
 function preloadDesktopVideos(container) {
-  const videos = container.querySelectorAll("video.project-video");
+  const videos = container.querySelectorAll(`video.${DOM_CLASSES.projectVideo}`);
   if (!videos.length) return;
 
   const observer = new IntersectionObserver(
@@ -267,7 +414,7 @@ function preloadDesktopVideos(container) {
 //   • 150 ms paint delay — down from 200 ms
 //
 function forceIOSVideoThumbnails(container) {
-  const videos = container.querySelectorAll("video.project-video");
+  const videos = container.querySelectorAll(`video.${DOM_CLASSES.projectVideo}`);
   if (!videos.length) return;
 
   const CONCURRENCY = 3;
@@ -288,8 +435,8 @@ function forceIOSVideoThumbnails(container) {
       if (p !== undefined) {
         p.then(() => {
           setTimeout(() => {
-            const card = video.closest(".project-card");
-            if (!card?.classList.contains("expanded")) video.pause();
+            const card = video.closest(`.${DOM_CLASSES.projectCard}`);
+            if (!card?.classList.contains(DOM_CLASSES.expanded)) video.pause();
             done();
           }, 150);
         }).catch((err) => {
@@ -340,36 +487,38 @@ function forceIOSVideoThumbnails(container) {
 
 // ── Expand / collapse ────────────────────────────────────────────────────────
 function toggleProjectExpansion(projectDiv) {
-  const isExpanded = projectDiv.classList.contains("expanded");
+  const isExpanded = projectDiv.classList.contains(DOM_CLASSES.expanded);
   const isMobile = isMobileDevice();
 
-  document.querySelectorAll(".project-card.expanded").forEach((card) => {
+  document
+    .querySelectorAll(`.${DOM_CLASSES.projectCard}.${DOM_CLASSES.expanded}`)
+    .forEach((card) => {
     if (card !== projectDiv) {
       if (isMobile) {
-        const v = card.querySelector(".project-video");
+        const v = card.querySelector(`.${DOM_CLASSES.projectVideo}`);
         if (v) { v.muted = true; v.pause(); }
       }
       collapseProject(card);
     }
-  });
+    });
 
   if (isExpanded) {
     collapseProject(projectDiv);
   } else {
-    projectDiv.classList.add("expanded");
-    const info = projectDiv.querySelector(".project-info");
-    const brief = projectDiv.querySelector(".project-brief");
-    if (info) info.style.display = "block";
+    projectDiv.classList.add(DOM_CLASSES.expanded);
+    const meta = projectDiv.querySelector(`.${DOM_CLASSES.projectMeta}`);
+    const brief = projectDiv.querySelector(`.${DOM_CLASSES.projectBrief}`);
+    if (meta) meta.style.display = "block";
     if (brief) brief.style.display = "block";
   }
 }
 
 function collapseProject(projectDiv) {
-  projectDiv.classList.add("collapsing");
-  projectDiv.classList.remove("expanded");
+  projectDiv.classList.add(DOM_CLASSES.collapsing);
+  projectDiv.classList.remove(DOM_CLASSES.expanded);
 
   if (isMobileDevice()) {
-    const video = projectDiv.querySelector(".project-video");
+    const video = projectDiv.querySelector(`.${DOM_CLASSES.projectVideo}`);
     if (video) {
       video.muted = true;
       video.pause();
@@ -378,35 +527,77 @@ function collapseProject(projectDiv) {
   }
 
   setTimeout(() => {
-    const info = projectDiv.querySelector(".project-info");
-    const brief = projectDiv.querySelector(".project-brief");
-    if (info) info.style.display = "none";
+    const meta = projectDiv.querySelector(`.${DOM_CLASSES.projectMeta}`);
+    const brief = projectDiv.querySelector(`.${DOM_CLASSES.projectBrief}`);
+    if (meta) meta.style.display = "none";
     if (brief) brief.style.display = "none";
-    projectDiv.classList.remove("collapsing");
+    projectDiv.classList.remove(DOM_CLASSES.collapsing);
   }, 400);
 }
 
 // ── Counter ──────────────────────────────────────────────────────────────────
 function updateProjectCounter(shownCount, totalCount) {
-  let el = document.getElementById("project-counter");
+  let el = document.getElementById(DOM_IDS.projectCounter);
   if (!el) {
     el = document.createElement("p");
-    el.id = "project-counter";
-    const container = document.getElementById("projects-container");
+    el.id = DOM_IDS.projectCounter;
+    const container = document.getElementById(DOM_IDS.projectsContainer);
     container.parentNode.insertBefore(el, container.nextSibling);
   }
   el.textContent = `Showing: ${shownCount}/${totalCount}`;
 }
 
-// ── Tag filter ───────────────────────────────────────────────────────────────
+// ── Tag filter (header) + secondary filters (Tools / Year under #projects-filter)
+// Sub-options: <ul class="filter-list"><li><a class="filter-option" href="#">…</a></li></ul> (no ids on links)
+// Header tags: `#library-filter` uses `library-filter-link`, not `filter-option`.
+// "What Ifs" is `<a id="what-ifs">` — toggles What Ifs mode (see `whatIfsMode`).
+function populateFilterList(container, items, selectedList, options) {
+  const { kind, dataAttr, linkClass = DOM_CLASSES.filterOption } = options;
+  if (!container) return;
+
+  let ul;
+  if (container.tagName === "UL") {
+    ul = container;
+    ul.innerHTML = "";
+  } else {
+    ul = container.querySelector(`ul.${DOM_CLASSES.filterList}`);
+    if (!ul) {
+      ul = document.createElement("ul");
+      ul.className = DOM_CLASSES.filterList;
+      container.appendChild(ul);
+    } else {
+      ul.innerHTML = "";
+    }
+  }
+
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    const a = document.createElement("a");
+    a.className = linkClass;
+    a.href = "#";
+    if (kind === "tag") {
+      a.setAttribute(dataAttr, item);
+    } else {
+      a.dataset.filterKind = kind;
+      a.dataset.filterValue = item;
+    }
+    const display = item.length > 96 ? `${item.slice(0, 93)}…` : item;
+    a.textContent = display;
+    if (item.length > 96) a.title = item;
+    if (selectedList.includes(item)) a.classList.add(DOM_CLASSES.selected);
+    li.appendChild(a);
+    ul.appendChild(li);
+  });
+}
+
 function populateTagFilter(records) {
-  const dropdownMenu = document.getElementById("dropdown-menu");
+  const menu = document.getElementById(DOM_IDS.filterMenu);
+  if (!menu) return;
+
   const allTags = new Set();
   records.forEach((record) => {
     parseTags(record["Tags"] || "").forEach((tag) => allTags.add(tag));
   });
-
-  dropdownMenu.innerHTML = "";
 
   const tagOrder = [
     "Screens", "Materiality", "Light", "Optics",
@@ -414,28 +605,38 @@ function populateTagFilter(records) {
   ];
   const existingTags = tagOrder.filter((tag) => allTags.has(tag));
 
-  if (existingTags.length > 0) {
-    const slash = document.createElement("span");
-    slash.textContent = " / ";
-    slash.style.cssText = "color:#666;font-size:18px;pointer-events:none";
-    dropdownMenu.appendChild(slash);
-  }
-
-  existingTags.forEach((option, index) => {
-    const el = document.createElement("span");
-    el.className = "dropdown-option";
-    el.setAttribute("data-value", option);
-    el.textContent = option;
-    if (selectedFilters.includes(option)) el.classList.add("selected");
-    dropdownMenu.appendChild(el);
-
-    if (index < existingTags.length - 1) {
-      const slash = document.createElement("span");
-      slash.textContent = " / ";
-      slash.style.cssText = "color:#666;font-size:18px;pointer-events:none";
-      dropdownMenu.appendChild(slash);
-    }
+  populateFilterList(menu, existingTags, selectedFilters, {
+    kind: "tag",
+    dataAttr: "data-value",
+    linkClass: DOM_CLASSES.libraryFilterLink,
   });
+}
+
+function populateSecondaryFilters(records) {
+  const tools = new Set();
+  const years = new Set();
+
+  records.forEach((record) => {
+    parseToolsList(record["Tools"] || "").forEach((t) => tools.add(t));
+    const y = extractYear(record["Date"]) || record.year || "";
+    if (y) years.add(y);
+  });
+
+  const toolsArr = [...tools].sort((a, b) => a.localeCompare(b));
+  const yearsArr = [...years].sort((a, b) => b.localeCompare(a));
+
+  populateFilterList(
+    document.getElementById(DOM_IDS.toolOptions),
+    toolsArr,
+    selectedTools,
+    { kind: "tool", dataAttr: "" }
+  );
+  populateFilterList(
+    document.getElementById(DOM_IDS.yearOptions),
+    yearsArr,
+    selectedYears,
+    { kind: "year", dataAttr: "" }
+  );
 }
 
 function toggleTagFilter(tagValue) {
@@ -443,102 +644,103 @@ function toggleTagFilter(tagValue) {
   if (index > -1) selectedFilters.splice(index, 1);
   else selectedFilters.push(tagValue);
   updateFilterDisplay();
-  document.getElementById("dropdown-menu").classList.remove("show");
   displayProjects(allRecords);
 }
 
-function removeFilterTag(tagValue) {
-  const index = selectedFilters.indexOf(tagValue);
-  if (index > -1) {
-    selectedFilters.splice(index, 1);
-    updateFilterDisplay();
-    displayProjects(allRecords);
-  }
+function toggleSecondaryFilter(kind, value) {
+  const arr =
+    kind === "tool" ? selectedTools : kind === "year" ? selectedYears : null;
+  if (!arr) return;
+  const i = arr.indexOf(value);
+  if (i > -1) arr.splice(i, 1);
+  else arr.push(value);
+  updateFilterDisplay();
+  displayProjects(allRecords);
 }
 
 function updateFilterDisplay() {
-  const placeholder = document.getElementById("filter-placeholder");
-  const container = document.getElementById("selected-tags");
+  const placeholder = document.getElementById(DOM_IDS.filterPlaceholder);
+  const container = document.getElementById(DOM_IDS.selectedTags);
+  if (!container || !placeholder) return;
   container.innerHTML = "";
 
   if (selectedFilters.length === 0) {
-    placeholder.style.display = "inline";
+    placeholder.hidden = false;
   } else {
-    placeholder.style.display = "none";
-    selectedFilters.forEach((tag) => {
-      const el = document.createElement("span");
-      el.className = "selected-tag";
-      el.innerHTML = `
-        <span class="tag-name">${tag}</span>
-        <span class="tag-remove" data-tag="${tag}">×</span>
-      `;
-      el.querySelector(".tag-remove").addEventListener("click", (e) => {
-        e.stopPropagation();
-        removeFilterTag(tag);
+    placeholder.hidden = true;
+    selectedFilters.forEach((tag, i) => {
+      if (i > 0) {
+        container.appendChild(document.createTextNode(" / "));
+      }
+      const span = document.createElement("span");
+      span.className = DOM_CLASSES.selectedTagInline;
+      span.textContent = tag.toUpperCase();
+      span.setAttribute("role", "button");
+      span.tabIndex = 0;
+      span.addEventListener("click", (e) => {
+        e.preventDefault();
+        toggleTagFilter(tag);
       });
-      el.querySelector(".tag-name").addEventListener("click", (e) => {
-        e.stopPropagation();
-        toggleDropdown();
+      span.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          toggleTagFilter(tag);
+        }
       });
-      container.appendChild(el);
+      container.appendChild(span);
+    });
+  }
+}
+
+function setupFilterListeners() {
+  const filterMenu = document.getElementById(DOM_IDS.filterMenu);
+  if (filterMenu) {
+    filterMenu.addEventListener("click", (e) => {
+      const target = e.target.closest("a");
+      if (!target || !target.classList.contains(DOM_CLASSES.libraryFilterLink)) return;
+      if (!filterMenu.contains(target)) return;
+      e.preventDefault();
+      const v = target.getAttribute("data-value");
+      if (v) toggleTagFilter(v);
     });
   }
 
-  document.querySelectorAll(".dropdown-option").forEach((option) => {
-    option.classList.toggle(
-      "selected",
-      selectedFilters.includes(option.getAttribute("data-value"))
-    );
-  });
-}
-
-function toggleDropdown() {
-  const menu = document.getElementById("dropdown-menu");
-  if (menu.classList.contains("show")) {
-    menu.classList.remove("show");
-  } else {
-    populateTagFilter(allRecords);
-    menu.classList.add("show");
+  const projectsFilter = document.getElementById("projects-filter");
+  if (projectsFilter) {
+    projectsFilter.addEventListener("click", (e) => {
+      const target = e.target.closest("a");
+      if (!target || !target.classList.contains(DOM_CLASSES.filterOption)) return;
+      if (!projectsFilter.contains(target)) return;
+      e.preventDefault();
+      const kind = target.dataset.filterKind;
+      const value = target.dataset.filterValue;
+      if (kind && value !== undefined) toggleSecondaryFilter(kind, value);
+    });
   }
 }
 
-function setupDropdownListeners() {
-  const placeholder = document.getElementById("filter-placeholder");
-  const selectedTagsContainer = document.getElementById("selected-tags");
-  const dropdownMenu = document.getElementById("dropdown-menu");
-
-  placeholder.addEventListener("click", (e) => {
-    e.stopPropagation();
-    toggleDropdown();
-  });
-
-  selectedTagsContainer.addEventListener("click", (e) => {
-    if (e.target === selectedTagsContainer) {
-      e.stopPropagation();
-      toggleDropdown();
+function setupWhatIfsLink() {
+  const a = document.getElementById("what-ifs");
+  if (!a) return;
+  a.addEventListener("click", (e) => {
+    e.preventDefault();
+    whatIfsMode = !whatIfsMode;
+    if (whatIfsMode) {
+      selectedFilters.length = 0;
+      selectedTools.length = 0;
+      selectedYears.length = 0;
+      updateFilterDisplay();
     }
-  });
-
-  dropdownMenu.addEventListener("click", (e) => {
-    if (e.target.classList.contains("dropdown-option")) {
-      toggleTagFilter(e.target.getAttribute("data-value"));
-    }
-  });
-
-  document.addEventListener("click", (e) => {
-    if (
-      !placeholder.contains(e.target) &&
-      !selectedTagsContainer.contains(e.target) &&
-      !dropdownMenu.contains(e.target)
-    ) {
-      dropdownMenu.classList.remove("show");
-    }
+    syncWhatIfsLinkSelectedState();
+    displayProjects(allRecords);
   });
 }
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 document.addEventListener("DOMContentLoaded", () => {
   loadLocalData();
-  setupDropdownListeners();
+  setupFilterListeners();
+  setupWhatIfsLink();
   updateFilterDisplay();
+  syncWhatIfsLinkSelectedState();
 });

@@ -1,0 +1,121 @@
+:root {
+    --black: #000000;
+    --gray: #757575;
+    --white: #ffffff;
+    --yellow: #ffd700;
+    --padding-s: 15px;
+    --padding-l: 40px;
+    --margin-s: 100px;
+    --margin-l: 200px;
+
+    --font-h1-family: "Atlas Grotesk", sans-serif;
+    --font-h1-size: 36px;
+    --font-h1-weight: lighter;
+    --font-h1-line-height: 36px;
+
+    --font-h2-family: "Atlas Grotesk", sans-serif;
+    --font-h2-size: 15px;
+    --font-h2-weight: lighter;
+    --font-h2-line-height: 20px;
+
+    --font-p-family: "Atlas Grotesk", sans-serif;
+    --font-p-size: 13px;
+    --font-p-weight: lighter;
+    --font-p-line-height: var(--padding-s);
+
+    --grid-column-count: 5;
+    --grid-columns: repeat(var(--grid-column-count), 1fr);
+    /* Project cards: one fewer column than the page grid (sidebar uses one). */
+    --projects-grid-columns: repeat(calc(var(--grid-column-count) - 1), 1fr);
+}
+
+h1{
+    font-family: var(--font-h1-family);
+    font-size: var(--font-h1-size);
+    font-weight: var(--font-h1-weight);
+    line-height: var(--font-h1-line-height);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+h2{
+    font-family: var(--font-h2-family);
+    font-size: var(--font-h2-size);
+    font-weight: var(--font-h2-weight);
+    line-height: var(--font-h2-line-height);
+    text-transform: uppercase;
+    margin: 0;
+}
+
+p{
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    font-weight: var(--font-p-weight);
+    line-height: var(--font-p-line-height);
+}
+
+a{
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    font-weight: var(--font-p-weight);
+    line-height: var(--font-p-line-height);
+    color: var(--gray);
+    text-decoration: none;
+    cursor: pointer;
+}
+a:hover{
+    text-decoration: underline;
+    color: var(--white);
+}
+li{
+    list-style: none;
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    font-weight: var(--font-p-weight);
+    line-height: var(--font-p-line-height);
+    color: var(--white); /* TO DO: color is appearing as gray on the page */
+
+}
+
+/* BODY STYLES */
+
+*{
+    box-sizing: border-box;
+    /* border: 1px solid red !important; */
+}
+
+body{
+    background-color: var(--black);
+    color: var(--white);
+    margin: 0 var(--margin-l);
+    display: flex;
+    flex-direction: column;
+}
+
+header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: top;
+    gap: var(--padding-s);
+    position: sticky;
+    margin-top: var(--margin-s);
+    padding: var(--padding-s) 0;
+    top: 0;
+    z-index: 100;
+    background-color: var(--black);
+    /* background-color: blue; */
+}
+main{
+    display: flex;
+    flex-direction: column;
+    gap: var(--margin-s);
+    margin-top: var(--margin-s);
+    /* background-color: green; */
+}
+
+footer{
+    margin-top: var(--margin-s);
+    margin-bottom: var(--margin-s);
+    /* background-color: red; */
+}

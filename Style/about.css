@@ -1,0 +1,112 @@
+/* About page — Figma 4327:35 (Our R&D Process) */
+.about-page{
+    min-height: 100vh;
+}
+
+.about-header{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--padding-s);
+    margin-top: var(--margin-s);
+    padding: var(--padding-l) 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: var(--black);
+}
+
+.about-title{
+    line-height: 60px;
+    color: var(--white);
+}
+
+.about-nav-link{
+    font-family: var(--font-p-family);
+    font-size: var(--font-p-size);
+    font-weight: var(--font-p-weight);
+    line-height: var(--font-p-line-height);
+    color: var(--white);
+    text-decoration: none;
+    text-transform: lowercase;
+    flex-shrink: 0;
+}
+
+.about-nav-link:hover{
+    text-decoration: underline;
+    color: var(--white);
+}
+
+.about-nav-link:focus-visible{
+    outline: none;
+    text-decoration: underline;
+    color: var(--gray);
+}
+
+.about-main{
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-l);
+    max-width: 620px;
+    padding-bottom: var(--margin-l);
+    margin-top: 0;
+}
+
+.about-section{
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-l);
+}
+
+.about-section-title{
+    color: var(--white);
+}
+
+.about-lede,
+.about-section-copy{
+    color: var(--white);
+    margin: 0;
+    max-width: 620px;
+}
+
+.about-lede a,
+.about-section-copy a{
+    color: var(--gray);
+}
+
+.about-lede a:hover,
+.about-section-copy a:hover{
+    color: var(--white);
+}
+
+.about-doc-row{
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--padding-s);
+    align-items: center;
+}
+
+.about-doc-figure{
+    margin: 0;
+    flex: 0 0 auto;
+    width: 196px;
+    height: 131px;
+    overflow: hidden;
+    background-color: var(--black);
+}
+
+.about-doc-figure img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+@media (max-width: 700px){
+    .about-doc-figure{
+        width: min(196px, 100%);
+        height: auto;
+        aspect-ratio: 196 / 131;
+    }
+}
