@@ -51,9 +51,18 @@ p{
     right: 0;
     z-index: 100;
     padding: 50px 10vw 25px 10vw;
-    background: linear-gradient(to top, rgba(0, 0, 0, 0) 0%, rgb(255, 255, 255) 100%);
-    backdrop-filter: blur(30px);
 }
+
+.filter-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(to top, rgba(0,0,0,0) 0%, rgb(255,255,255) 100%);
+    backdrop-filter: blur(30px);
+    pointer-events: none;  /* pseudo-element never intercepts clicks */
+}
+
 .filter-placeholder {
     cursor: pointer;
 }
@@ -156,6 +165,8 @@ p{
     /* Card styling handled by grid layout */
     display: block;
     cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: top left;
 }
 
 .project-name {
@@ -182,7 +193,6 @@ p{
     align-items: flex-start;
 }
 
-.project-made-with,
 .project-team {
     margin: 0;
     color: var(--color-text);
@@ -236,12 +246,6 @@ p{
     text-align: center;
 }
 
-/* In-place expansion styles */
-.project-card {
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    transform-origin: top left;
-}
-
 .project-card.expanded {
     grid-column: span 2;
     grid-row: span 2;
@@ -254,7 +258,6 @@ p{
     border-radius: 0;
     box-shadow: none;
     transform: scale(1);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     align-items: stretch;
     animation: expandCard 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
@@ -332,10 +335,6 @@ p{
     grid-row: 1; 
     justify-self: end; 
 }
-.project-card.expanded .project-made-with { 
-    grid-column: 1 / -1; 
-    grid-row: 2; 
-}
 
 #project-counter {
 
@@ -377,9 +376,6 @@ p{
         font-size: 1em;
     }
     
-    body {
-        margin-top: 200px;
-    }
     .library-header {
         flex-direction: row; /* closed: row */
         align-items: center;
@@ -475,7 +471,7 @@ p{
         font-size: inherit; /* follow .library-nav */
     }
 
-    intro-text {
+    .intro-text {
         font-size: 13px;
     }
 }

@@ -1,16 +1,19 @@
 // No URL formatting needed for local files
 
+// Temporarily filter projects by year.
+// Set to null to show all years again.
+const TEMP_ONLY_YEAR = "2026";
+
 // Load local JSON data
 function loadLocalData() {
   fetch("data.json")
     .then((response) => response.json())
     .then((data) => {
-      // Flatten year-based structure into array of records
       const records = [];
       Object.keys(data).forEach((year) => {
+        if (TEMP_ONLY_YEAR && year !== TEMP_ONLY_YEAR) return;
         if (Array.isArray(data[year])) {
           data[year].forEach((project) => {
-            // Add year to project object
             project.year = year;
             records.push(project);
           });
@@ -18,24 +21,14 @@ function loadLocalData() {
       });
 
       if (records.length > 0) {
-        // Sort by date (newest to oldest)
         records.sort((a, b) => {
           const dateA = parseDate(a["Date"]);
           const dateB = parseDate(b["Date"]);
-
-          // If both dates are valid, compare them
-          if (dateA && dateB) {
-            return dateB - dateA; // Newest first (descending)
-          }
-
-          // If only one has a date, prioritize it
+          if (dateA && dateB) return dateB - dateA;
           if (dateA && !dateB) return -1;
           if (dateB && !dateA) return 1;
-
-          // If neither has a date, maintain original order
           return 0;
         });
-
         displayProjects(records);
       } else {
         document.getElementById("projects-container").innerHTML =
@@ -51,10 +44,9 @@ function loadLocalData() {
 
 // Global variables for filtering
 let allRecords = [];
-let selectedFilters = []; // Array to store multiple selected tags
-let totalProjectCount = 0; // Store total count of all projects
+let selectedFilters = [];
+let totalProjectCount = 0;
 
-// Helper function to parse tags from string to array
 function parseTags(tagsString) {
   if (!tagsString) return [];
   return tagsString
@@ -63,189 +55,132 @@ function parseTags(tagsString) {
     .filter((tag) => tag);
 }
 
-// Helper function to parse date string to Date object
 function parseDate(dateString) {
   if (!dateString) return null;
-
-  // Try YYYY-MM-DD format first (used in 2025, 2026)
   if (dateString.includes("-")) {
     const parts = dateString.split("-");
-    if (parts.length === 3) {
-      return new Date(parts[0], parts[1] - 1, parts[2]);
-    }
+    if (parts.length === 3) return new Date(parts[0], parts[1] - 1, parts[2]);
   }
-
-  // Try DD/MM/YYYY format (used in 2024)
   if (dateString.includes("/")) {
     const parts = dateString.split("/");
-    if (parts.length === 3) {
-      // DD/MM/YYYY format
-      return new Date(parts[2], parts[1] - 1, parts[0]);
-    }
+    if (parts.length === 3) return new Date(parts[2], parts[1] - 1, parts[0]);
   }
-
   return null;
 }
 
-// Helper function to extract year from date
 function extractYear(dateString) {
   if (!dateString) return "";
-  // Date format is "YYYY-MM-DD", extract year
-  const year = dateString.split("-")[0];
-  return year;
+  return dateString.split("-")[0];
 }
 
-// Helper function to detect if device is a phone or iPad
 function isMobileDevice() {
-  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || 
-         ('ontouchstart' in window) || 
-         (navigator.maxTouchPoints > 0);
-}
-
-// Helper function to shuffle array (Fisher-Yates algorithm)
-function shuffleArray(array) {
-  const shuffled = [...array]; // Create a copy to avoid mutating the original
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
+  return (
+    /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+    "ontouchstart" in window ||
+    navigator.maxTouchPoints > 0
+  );
 }
 
 // Display projects in grid
 function displayProjects(records) {
-  allRecords = records; // Store all records globally
+  allRecords = records;
   const container = document.getElementById("projects-container");
   container.innerHTML = "";
 
-  // Filter valid and active records
   const validRecords = records.filter((record) => {
     const projectName = record["Project"] || record["project"];
     const isActive = record["Active"] !== false && record["Active"] !== null;
     return projectName && projectName.trim() !== "" && isActive;
   });
 
-  // Apply tag filters if active (projects must have at least one of the selected tags)
   const filteredRecords =
     selectedFilters.length > 0
       ? validRecords.filter((record) => {
-          const tagsString = record["Tags"] || "";
-          const tags = parseTags(tagsString);
+          const tags = parseTags(record["Tags"] || "");
           return selectedFilters.some((filter) => tags.includes(filter));
         })
       : validRecords;
 
-  // Don't shuffle here - use the already shuffled order from initial load
-  // Filtering maintains the original shuffled order
-
-  // Populate tag dropdown
   populateTagFilter(validRecords);
-
-  // Store total count for display
   totalProjectCount = validRecords.length;
 
-  filteredRecords.forEach((record, index) => {
+  filteredRecords.forEach((record) => {
     const projectDiv = document.createElement("div");
     projectDiv.className = "project-card";
-    projectDiv.dataset.projectIndex = index;
 
     const projectName = record["Project"];
     const videoField = record["Video"];
     const imageField = record["Image"];
     const dateField = record["Date"];
     const yearText = extractYear(dateField) || record.year || "";
+    const teamText = (record["Team"] || "").trim();
+    const brief = record["Brief"] || "";
 
     let mediaHTML = "";
 
-    // Handle video
     if (videoField && videoField.trim() !== "") {
-      // Desktop: preload metadata so the browser renders the first frame
-      // Mobile: preload none — the thumbnail painter handles loading sequentially
+      // Desktop: preload="metadata" gives a first-frame thumbnail immediately.
+      // Mobile: preload="none" — the thumbnail painter loads them in controlled batches.
       const preloadValue = isMobileDevice() ? "none" : "metadata";
       mediaHTML = `
-                <video class="project-video" 
-                       preload="${preloadValue}"
-                       loop 
-                       muted
-                       playsinline>
-                    <source src="${videoField}" type="video/mp4">
-                    <source src="${videoField}" type="video/quicktime">
-                    Your browser doesn't support video.
-                </video>
-            `;
-    }
-    // If no video, check for image
-    else if (imageField && imageField.trim() !== "") {
+        <video class="project-video"
+               preload="${preloadValue}"
+               loop
+               muted
+               playsinline>
+          <source src="${videoField}" type="video/mp4">
+          <source src="${videoField}" type="video/quicktime">
+          Your browser doesn't support video.
+        </video>
+      `;
+    } else if (imageField && imageField.trim() !== "") {
       mediaHTML = `<img class="project-image" src="${imageField}" alt="${projectName}" loading="lazy" decoding="async">`;
-    }
-
-    // Placeholder if no media
-    if (!mediaHTML) {
+    } else {
       mediaHTML = `<div class="no-video">No media available</div>`;
     }
 
-    // Get team and materials for display
-    const teamString = record["Team"] || "";
-    const materialsString = record["Materials"] || "";
-    const brief = record["Brief"] || "";
-    const teamText = teamString.trim();
-    const madeWithText = materialsString.trim();
-
     projectDiv.innerHTML = `
-            <div class="project-video-container">
-                ${mediaHTML}
-            </div>
-            <h3 class="project-name">${projectName}</h3>
-            <div class="project-info" style="display: none;">
-                <div class="project-meta">
-                    ${
-                      teamText
-                        ? `<p class="project-team">by ${teamText}</p>`
-                        : ""
-                    }
-                    ${yearText ? `<p class="project-year">${yearText}</p>` : ""}
-                </div>
-            </div>
-            <div class="project-brief" style="display: none;">
-                ${brief ? `<p>${brief}</p>` : ""}
-            </div>
-        `;
+      <div class="project-video-container">${mediaHTML}</div>
+      <h3 class="project-name">${projectName}</h3>
+      <div class="project-info" style="display: none;">
+        <div class="project-meta">
+          ${teamText ? `<p class="project-team">by ${teamText}</p>` : ""}
+          ${yearText ? `<p class="project-year">${yearText}</p>` : ""}
+        </div>
+      </div>
+      <div class="project-brief" style="display: none;">
+        ${brief ? `<p>${brief}</p>` : ""}
+      </div>
+    `;
 
-    // Add hover functionality for videos (not images) - desktop only
     const video = projectDiv.querySelector(".project-video");
     const isMobile = isMobileDevice();
-    
+
+    // ── Desktop hover behaviour ──────────────────────────────────────
     if (video && !isMobile) {
-      // Track whether this video has had its data loaded
-      let videoReady = false;
       let isHovering = false;
 
-      // Start loading video data on first mouseenter so frames are buffered
       const ensureLoaded = () => {
-        if (!videoReady && video.preload !== 'auto') {
-          video.preload = 'auto';
+        if (video.preload !== "auto") {
+          video.preload = "auto";
           video.load();
         }
       };
 
-      // Desktop: hover to play video with audio
-      // Strategy: always attempt unmuted play first (works after any user
-      // gesture on the page). If that fails (Firefox/Chrome autoplay policy),
-      // fall back to muted play so the video still animates visually.
       projectDiv.addEventListener("mouseenter", () => {
         isHovering = true;
         ensureLoaded();
-
-        // Try unmuted first
-        video.muted = false;
-        const playPromise = video.play();
-        if (playPromise !== undefined) {
-          playPromise.catch(() => {
-            // Unmuted play blocked by autoplay policy — fall back to muted
-            if (isHovering) {
-              video.muted = true;
-              video.play().catch((err) => console.log("Muted play also failed:", err));
-            }
+      
+        // Always start muted — Firefox blocks unmuted autoplay on hover.
+        // Unmute only after play() resolves (requires a prior user gesture).
+        video.muted = true;
+        const p = video.play();
+        if (p !== undefined) {
+          p.then(() => {
+            // play() succeeded — now safe to unmute if user is still hovering
+            if (isHovering) video.muted = false;
+          }).catch((err) => {
+            console.log("Hover play failed:", err);
           });
         }
       });
@@ -257,339 +192,261 @@ function displayProjects(records) {
         video.currentTime = 0;
       });
 
-      // After any click on this card, the page has a user gesture —
-      // future hovers can unmute. Also immediately unmute if playing.
       projectDiv.addEventListener("click", () => {
-        if (video.muted && !video.paused) {
-          video.muted = false;
-        }
+        if (video.muted && !video.paused) video.muted = false;
       });
     }
 
-    // Click handler - different behavior for mobile vs desktop
+    // ── Click handler (mobile + desktop expand/collapse) ─────────────
     projectDiv.addEventListener("click", () => {
       const isExpanded = projectDiv.classList.contains("expanded");
-      
+
       if (isMobile && video) {
-        // Mobile: load, unmute and play video when expanding, mute and pause when collapsing
         if (!isExpanded) {
-          // Will expand - iOS requires explicit load() call on user interaction
-          console.log("iOS: Loading video, readyState:", video.readyState);
           video.load();
-          
-          // Wait for video metadata to load, then unmute and play
           const playVideo = () => {
-            console.log("iOS: Attempting to play, readyState:", video.readyState);
             video.muted = false;
-            video.play().catch((err) => {
-              console.log("iOS Play failed:", err);
-              console.log("Video diagnostics - readyState:", video.readyState, "networkState:", video.networkState, "error:", video.error);
-            });
+            video.play().catch((err) => console.log("iOS play failed:", err));
           };
-          
           if (video.readyState >= 1) {
-            // Video has metadata, can play
             playVideo();
           } else {
-            // Wait for metadata to load
-            video.addEventListener('loadedmetadata', playVideo, { once: true });
+            video.addEventListener("loadedmetadata", playVideo, { once: true });
           }
         } else {
-          // Will collapse - mute and pause video
           video.muted = true;
           video.pause();
         }
       }
-      
-      // Both mobile and desktop: toggle expand/collapse
-      toggleProjectExpansion(projectDiv, record);
+
+      toggleProjectExpansion(projectDiv);
     });
 
     container.appendChild(projectDiv);
   });
 
-  // Update counter at bottom
   updateProjectCounter(filteredRecords.length, totalProjectCount);
 
   if (isMobileDevice()) {
-    // Mobile: force iOS Safari to render video thumbnails via play/pause cycle
     forceIOSVideoThumbnails(container);
   } else {
-    // Desktop: progressively upgrade preload as videos approach viewport
-    // so they're buffered and ready for instant hover playback.
-    // Videos start with preload="metadata" (first frame thumbnail),
-    // then switch to preload="auto" when near viewport.
     preloadDesktopVideos(container);
   }
 }
 
-// Desktop: progressively buffer videos as they approach the viewport
-// so hover playback starts instantly without waiting for data to load.
+// ── Desktop: buffer videos before they reach the viewport ────────────────────
 function preloadDesktopVideos(container) {
-  const videos = container.querySelectorAll('video.project-video');
+  const videos = container.querySelectorAll("video.project-video");
   if (!videos.length) return;
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        const video = entry.target;
-        observer.unobserve(video);
-        if (video.preload !== 'auto') {
-          video.preload = 'auto';
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const video = entry.target;
+          observer.unobserve(video);
+          if (video.preload !== "auto") video.preload = "auto";
         }
-      }
-    });
-  }, {
-    rootMargin: '400px', // Start buffering well before visible
-    threshold: 0
-  });
+      });
+    },
+    {
+      rootMargin: "800px", // increased from 400px — buffer earlier
+      threshold: 0,
+    }
+  );
 
   videos.forEach((video) => observer.observe(video));
 }
 
-// Force iOS to paint video first frames as thumbnails
+// ── Mobile: paint first-frame thumbnails in parallel batches ─────────────────
+//
+// Key changes vs the old version:
+//   • CONCURRENCY = 3  — run 3 paints at once instead of 1
+//   • queue.unshift    — visible videos jump to the front of the queue
+//   • 5 s timeout      — down from 8 s so a stalled video unblocks faster
+//   • 150 ms paint delay — down from 200 ms
+//
 function forceIOSVideoThumbnails(container) {
-  const videos = container.querySelectorAll('video.project-video');
+  const videos = container.querySelectorAll("video.project-video");
   if (!videos.length) return;
 
-  // Queue of videos that need thumbnails painted, processed sequentially
-  // to avoid saturating mobile bandwidth with parallel downloads.
-  const pendingVideos = [];
-  let isProcessing = false;
+  const CONCURRENCY = 3;
+  let active = 0;
+  const queue = [];
 
-  function processNext() {
-    if (pendingVideos.length === 0) {
-      isProcessing = false;
-      return;
-    }
-    isProcessing = true;
-    const video = pendingVideos.shift();
-
+  function paintOne(video) {
+    active++;
     video.muted = true;
 
+    const done = () => {
+      active--;
+      next();
+    };
+
     const paintFrame = () => {
-      const playPromise = video.play();
-      if (playPromise !== undefined) {
-        playPromise.then(() => {
-          // Wait for iOS compositor to fully render the frame
+      const p = video.play();
+      if (p !== undefined) {
+        p.then(() => {
           setTimeout(() => {
-            const card = video.closest('.project-card');
-            if (!card || !card.classList.contains('expanded')) {
-              video.pause();
-            }
-            // Process the next video in the queue
-            processNext();
-          }, 200);
+            const card = video.closest(".project-card");
+            if (!card?.classList.contains("expanded")) video.pause();
+            done();
+          }, 150);
         }).catch((err) => {
-          console.log('iOS thumbnail paint failed:', err);
-          // Continue to next video even on failure
-          processNext();
+          console.log("iOS thumbnail paint failed:", err);
+          done();
         });
       } else {
-        processNext();
+        done();
       }
     };
 
     if (video.readyState >= 2) {
       paintFrame();
     } else {
-      video.addEventListener('loadeddata', paintFrame, { once: true });
-      // Add a timeout so one stalled video doesn't block the whole queue
+      video.addEventListener("loadeddata", paintFrame, { once: true });
+      // Don't let one stalled video block the whole queue
       setTimeout(() => {
         if (video.readyState < 2) {
-          video.removeEventListener('loadeddata', paintFrame);
-          processNext();
+          video.removeEventListener("loadeddata", paintFrame);
+          done();
         }
-      }, 8000);
-      if (video.readyState === 0) {
-        video.load();
-      }
+      }, 5000); // reduced from 8 s
+      if (video.readyState === 0) video.load();
     }
   }
 
-  // Use IntersectionObserver to feed the queue as videos enter viewport
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        observer.unobserve(entry.target);
-        pendingVideos.push(entry.target);
-        if (!isProcessing) {
-          processNext();
+  function next() {
+    while (active < CONCURRENCY && queue.length > 0) {
+      paintOne(queue.shift());
+    }
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          observer.unobserve(entry.target);
+          queue.unshift(entry.target); // front of queue = painted first
+          next();
         }
-      }
-    });
-  }, { 
-    rootMargin: '300px',
-    threshold: 0 
-  });
+      });
+    },
+    { rootMargin: "300px", threshold: 0 }
+  );
 
   videos.forEach((video) => observer.observe(video));
 }
 
-// Toggle project expansion within the grid
-function toggleProjectExpansion(projectDiv, record) {
+// ── Expand / collapse ────────────────────────────────────────────────────────
+function toggleProjectExpansion(projectDiv) {
   const isExpanded = projectDiv.classList.contains("expanded");
   const isMobile = isMobileDevice();
 
-  // Collapse all other expanded projects
   document.querySelectorAll(".project-card.expanded").forEach((card) => {
     if (card !== projectDiv) {
-      // Stop video in other cards on mobile when clicking a new card
       if (isMobile) {
-        const otherVideo = card.querySelector(".project-video");
-        if (otherVideo) {
-          otherVideo.muted = true;
-          otherVideo.pause();
-        }
+        const v = card.querySelector(".project-video");
+        if (v) { v.muted = true; v.pause(); }
       }
       collapseProject(card);
     }
   });
 
   if (isExpanded) {
-    // Collapse this project with animation
     collapseProject(projectDiv);
   } else {
-    // Expand this project
     projectDiv.classList.add("expanded");
-    const projectInfo = projectDiv.querySelector(".project-info");
-    const projectBrief = projectDiv.querySelector(".project-brief");
-    if (projectInfo) projectInfo.style.display = "block";
-    if (projectBrief) projectBrief.style.display = "block";
+    const info = projectDiv.querySelector(".project-info");
+    const brief = projectDiv.querySelector(".project-brief");
+    if (info) info.style.display = "block";
+    if (brief) brief.style.display = "block";
   }
 }
 
-// Collapse project with animation
 function collapseProject(projectDiv) {
   projectDiv.classList.add("collapsing");
   projectDiv.classList.remove("expanded");
 
-  // Stop video on mobile when collapsing
   if (isMobileDevice()) {
     const video = projectDiv.querySelector(".project-video");
     if (video) {
       video.muted = true;
       video.pause();
-      // Do NOT reset currentTime — on iOS this clears the painted
-      // thumbnail frame. The video will restart from the beginning
-      // when played again via load() in the click handler anyway.
+      // Don't reset currentTime on iOS — it clears the painted thumbnail
     }
   }
 
-  // Wait for animation to complete before hiding content
   setTimeout(() => {
-    const projectInfo = projectDiv.querySelector(".project-info");
-    const projectBrief = projectDiv.querySelector(".project-brief");
-    if (projectInfo) projectInfo.style.display = "none";
-    if (projectBrief) projectBrief.style.display = "none";
+    const info = projectDiv.querySelector(".project-info");
+    const brief = projectDiv.querySelector(".project-brief");
+    if (info) info.style.display = "none";
+    if (brief) brief.style.display = "none";
     projectDiv.classList.remove("collapsing");
-  }, 400); // Match animation duration
+  }, 400);
 }
 
-// Update project counter at bottom
+// ── Counter ──────────────────────────────────────────────────────────────────
 function updateProjectCounter(shownCount, totalCount) {
-  let counterElement = document.getElementById("project-counter");
-
-  if (!counterElement) {
-    // Create counter element if it doesn't exist
-    counterElement = document.createElement("p");
-    counterElement.id = "project-counter";
-    counterElement.className = "project-counter";
+  let el = document.getElementById("project-counter");
+  if (!el) {
+    el = document.createElement("p");
+    el.id = "project-counter";
     const container = document.getElementById("projects-container");
-    container.parentNode.insertBefore(counterElement, container.nextSibling);
+    container.parentNode.insertBefore(el, container.nextSibling);
   }
-
-  counterElement.textContent = `Showing: ${shownCount}/${totalCount}`;
+  el.textContent = `Showing: ${shownCount}/${totalCount}`;
 }
 
-// Populate tag filter dropdown
+// ── Tag filter ───────────────────────────────────────────────────────────────
 function populateTagFilter(records) {
   const dropdownMenu = document.getElementById("dropdown-menu");
-
-  // Get all unique tags from active records
   const allTags = new Set();
   records.forEach((record) => {
-    const tagsString = record["Tags"] || "";
-    const tags = parseTags(tagsString);
-    tags.forEach((tag) => allTags.add(tag));
+    parseTags(record["Tags"] || "").forEach((tag) => allTags.add(tag));
   });
 
-  // Clear existing options
   dropdownMenu.innerHTML = "";
 
-  // Define the specific order for tags
   const tagOrder = [
-    "Screens",
-    "Materiality",
-    "Light",
-    "Optics",
-    "Sound",
-    "Gestures",
-    "Multiplayer",
-    "XR",
+    "Screens", "Materiality", "Light", "Optics",
+    "Sound", "Gestures", "Multiplayer", "XR",
   ];
-
-  // Add tags that exist in the data, in the specified order
   const existingTags = tagOrder.filter((tag) => allTags.has(tag));
 
-  // Add slash before first option if there are any options
   if (existingTags.length > 0) {
-    const firstSlash = document.createElement("span");
-    firstSlash.textContent = " / ";
-    firstSlash.style.color = "#666";
-    firstSlash.style.fontSize = "18px";
-    firstSlash.style.pointerEvents = "none";
-    dropdownMenu.appendChild(firstSlash);
+    const slash = document.createElement("span");
+    slash.textContent = " / ";
+    slash.style.cssText = "color:#666;font-size:18px;pointer-events:none";
+    dropdownMenu.appendChild(slash);
   }
 
-  // Create a single horizontal line with filtered options
   existingTags.forEach((option, index) => {
-    const optionElement = document.createElement("span");
-    optionElement.className = "dropdown-option";
-    optionElement.setAttribute("data-value", option);
-    optionElement.textContent = option;
+    const el = document.createElement("span");
+    el.className = "dropdown-option";
+    el.setAttribute("data-value", option);
+    el.textContent = option;
+    if (selectedFilters.includes(option)) el.classList.add("selected");
+    dropdownMenu.appendChild(el);
 
-    // Highlight if already selected
-    if (selectedFilters.includes(option)) {
-      optionElement.classList.add("selected");
-    }
-
-    dropdownMenu.appendChild(optionElement);
-
-    // Add slash between options (except for the last one)
     if (index < existingTags.length - 1) {
       const slash = document.createElement("span");
       slash.textContent = " / ";
-      slash.style.color = "#666";
-      slash.style.fontSize = "18px";
-      slash.style.pointerEvents = "none";
+      slash.style.cssText = "color:#666;font-size:18px;pointer-events:none";
       dropdownMenu.appendChild(slash);
     }
   });
 }
 
-// Handle tag filter toggle (add or remove from selection)
 function toggleTagFilter(tagValue) {
   const index = selectedFilters.indexOf(tagValue);
-  if (index > -1) {
-    // Remove if already selected
-    selectedFilters.splice(index, 1);
-  } else {
-    // Add if not selected
-    selectedFilters.push(tagValue);
-  }
-
-  // Update UI
+  if (index > -1) selectedFilters.splice(index, 1);
+  else selectedFilters.push(tagValue);
   updateFilterDisplay();
-
-  // Close dropdown
   document.getElementById("dropdown-menu").classList.remove("show");
-
-  // Re-display with new filters
   displayProjects(allRecords);
 }
 
-// Remove a specific filter tag
 function removeFilterTag(tagValue) {
   const index = selectedFilters.indexOf(tagValue);
   if (index > -1) {
@@ -599,102 +456,76 @@ function removeFilterTag(tagValue) {
   }
 }
 
-// Update the filter display UI
 function updateFilterDisplay() {
   const placeholder = document.getElementById("filter-placeholder");
-  const selectedTagsContainer = document.getElementById("selected-tags");
-
-  // Clear selected tags container
-  selectedTagsContainer.innerHTML = "";
+  const container = document.getElementById("selected-tags");
+  container.innerHTML = "";
 
   if (selectedFilters.length === 0) {
-    // Show placeholder
     placeholder.style.display = "inline";
   } else {
-    // Hide placeholder and show selected tags
     placeholder.style.display = "none";
-
     selectedFilters.forEach((tag) => {
-      const tagElement = document.createElement("span");
-      tagElement.className = "selected-tag";
-      tagElement.innerHTML = `
+      const el = document.createElement("span");
+      el.className = "selected-tag";
+      el.innerHTML = `
         <span class="tag-name">${tag}</span>
         <span class="tag-remove" data-tag="${tag}">×</span>
       `;
-
-      // Add click handler for remove button
-      const removeBtn = tagElement.querySelector(".tag-remove");
-      removeBtn.addEventListener("click", (e) => {
+      el.querySelector(".tag-remove").addEventListener("click", (e) => {
         e.stopPropagation();
         removeFilterTag(tag);
       });
-
-      // Add click handler for tag name to open dropdown
-      const tagName = tagElement.querySelector(".tag-name");
-      tagName.addEventListener("click", (e) => {
+      el.querySelector(".tag-name").addEventListener("click", (e) => {
         e.stopPropagation();
         toggleDropdown();
       });
-
-      selectedTagsContainer.appendChild(tagElement);
+      container.appendChild(el);
     });
   }
 
-  // Update dropdown option states
   document.querySelectorAll(".dropdown-option").forEach((option) => {
-    const optionValue = option.getAttribute("data-value");
-    if (selectedFilters.includes(optionValue)) {
-      option.classList.add("selected");
-    } else {
-      option.classList.remove("selected");
-    }
+    option.classList.toggle(
+      "selected",
+      selectedFilters.includes(option.getAttribute("data-value"))
+    );
   });
 }
 
-// Toggle dropdown menu
 function toggleDropdown() {
-  const dropdownMenu = document.getElementById("dropdown-menu");
-  const placeholder = document.getElementById("filter-placeholder");
-
-  if (dropdownMenu.classList.contains("show")) {
-    dropdownMenu.classList.remove("show");
+  const menu = document.getElementById("dropdown-menu");
+  if (menu.classList.contains("show")) {
+    menu.classList.remove("show");
   } else {
-    // Repopulate dropdown
     populateTagFilter(allRecords);
-    dropdownMenu.classList.add("show");
+    menu.classList.add("show");
   }
 }
 
-// Add event listeners for custom dropdown
 function setupDropdownListeners() {
   const placeholder = document.getElementById("filter-placeholder");
   const selectedTagsContainer = document.getElementById("selected-tags");
   const dropdownMenu = document.getElementById("dropdown-menu");
 
-  // Toggle dropdown when clicking on placeholder
-  placeholder.addEventListener("click", function (e) {
+  placeholder.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleDropdown();
   });
 
-  // Toggle dropdown when clicking on selected tags container (if empty area)
-  selectedTagsContainer.addEventListener("click", function (e) {
+  selectedTagsContainer.addEventListener("click", (e) => {
     if (e.target === selectedTagsContainer) {
       e.stopPropagation();
       toggleDropdown();
     }
   });
 
-  // Handle option selection - toggle tag selection
-  dropdownMenu.addEventListener("click", function (e) {
+  dropdownMenu.addEventListener("click", (e) => {
     if (e.target.classList.contains("dropdown-option")) {
-      const value = e.target.getAttribute("data-value");
-      toggleTagFilter(value);
+      toggleTagFilter(e.target.getAttribute("data-value"));
     }
   });
 
-  // Close dropdown when clicking outside
-  document.addEventListener("click", function (e) {
+  document.addEventListener("click", (e) => {
     if (
       !placeholder.contains(e.target) &&
       !selectedTagsContainer.contains(e.target) &&
@@ -705,9 +536,9 @@ function setupDropdownListeners() {
   });
 }
 
-// Load data when page loads
-document.addEventListener("DOMContentLoaded", function () {
+// ── Init ─────────────────────────────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded", () => {
   loadLocalData();
   setupDropdownListeners();
-  updateFilterDisplay(); // Initialize filter display
+  updateFilterDisplay();
 });

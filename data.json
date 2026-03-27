@@ -1,6 +1,132 @@
 {
   "2026": [
     {
+      "Tags": "XX",
+      "Project": "XX",
+      "Date": "XX - XX",
+      "Team": "XX",
+      "Tools": "XX",
+      "Materials": "XX",
+      "What If": {
+        "Statement": "XX",
+        "Brief": "XX",
+        "Image":"Assets/Images/What Ifs/XX.png"
+      },
+      "Video": "XX",
+      "Active": false  
+    },
+    {
+      "Tags": "Materiality",
+      "Project": "Pepper's Ghost",
+      "Date": "2026-03-26",
+      "Team": "Jordan Kenna",
+      "Tools": "TouchDesigner, Gaussian Splatting",
+      "Materials": "3D printing, 7 LCD camera monitor, museum glass reflective plane, TouchDesigner, Gaussian Splatting",
+      "Brief": "A small-scale Pepper's Ghost projection platform exploring multi-angle holographic composition. The project uses classic Pepper's Ghost technique — LCD imagery reflected off clear acrylic in controlled lighting — combined with StreamDiffusion for color-coded subject separation, progressively scaling up display size and optical quality to test the limits of affordable holographic fidelity.",
+      "What If": {
+        "Statement": "What if our curiosity uncovered new perspectives or stories?",
+        "Brief": "A holographic AR overlay is placed inside of a telescopic tower viewer responding in real time to the telescope’s direction and orientation. ",
+        "Image":"Assets/Images/What Ifs/Pepper's Ghost.png"
+      },
+      "Video": "Assets/Videos/Peppers Ghost.mp4",
+      "Active": true  
+    },
+    {
+      "Tags": "Projection",
+      "Project": "Gen-AI Texture Mapping",
+      "Date": "2026-02-25",
+      "Team": "Philip Mcausland, Dan Marino",
+      "Tools": "Projection Mapping, Cameras, Sensors",
+      "Materials": "TouchDesigner, StreamDiffusion, MadMapper, Pico Projectors",
+      "Brief": "Using speech-to-text, NN-powered image gen, and projection-mapping to update content on the surface of a physical object using spoken descriptors, in real time",
+      "What If": {
+        "Statement": "What if an ancient artifact could come to life?",
+        "Brief": "This approach could be used to tell the story of an important object by dynamically animating its surface and even responding to interaction by a viewer",
+        "Image":"Assets/Images/What Ifs/Gen-AI Texture Mapping.png"
+      },
+      "Video": "Assets/Videos/Gen-AI Texture Mapping.mp4",
+      "Active": false  
+    },
+    {
+      "Tags": "Materiality, Fabric",
+      "Project": "Fabric Studies",
+      "Date": "2026-03-26",
+      "Team": "David Tracy, Kate Ducey",
+      "Tools": "Projection Mapping, Sensors",
+      "Materials": "Addressable motors, Fabric, Projection Mapping, Kinect",
+      "Brief": "An array of addressable motors manipulate fabric planes to continuously compress and expand space.",
+      "What If": {
+        "Statement": "What if every arrival could be a curtain drop?",
+        "Brief": "Arrays of linear actuators articulate a corridor of fabric to expand and contract to celebrate the arrival of each guest.",
+        "Image":"Assets/Images/What Ifs/Fabric Studies.png"
+      },
+      "Video": "Assets/Videos/Fabric Studies.mp4",
+      "Active": true  
+    },
+    {
+      "Tags": "Gestures",
+      "Project": "Rescale",
+      "Date": "2026-03-26",
+      "Team": "Tanvi Mishra, Aaron Parsekian",
+      "Tools": "TouchDesigner, Projection Mapping, Sensors",
+      "Materials": "Laser distance sensor, TouchDesigner, MadMapper",
+      "Brief": "As someone approached a screen, could it alter in a surprising way? Emulating a long walk down a corridor to subtly change how the content shifts across the scene",
+      "What If": {
+        "Statement": "Walking down a passageway was a thoughtful precursor to the destination",
+        "Brief": "Could walking down a small passageway feel like a part of the larger story. Can the screen morph to make the passageway feel more dynamic, spacious or connected to the person",
+        "Image":"Assets/Images/What Ifs/Rescale.png"
+      },
+      "Video": "Assets/Videos/Rescale.mp4",
+      "Active": true  
+    },
+    {
+      "Tags": "Sound, Projection",
+      "Project": "Wishing Well",
+      "Date": "2026-03-19",
+      "Team": "Andrew Cheu, Jeff Barbieri",
+      "Tools": "TouchDesigner, Projection Mapping, Laser Projector",
+      "Materials": "TouchDesigner, Zoom H3-VR microphone, ANYBEAM laser projector, bamboo embroidery hoops, two-way mirrored acrylics and Hologauze",
+      "What If": {
+        "Statement": "A personalized fixture brought calm and focus to your room?",
+        "Brief": "In a hotel room, a radial lighting fixture expands and contracts in a rhythmic breathingexpression, helping create moments of rest, calm and focus.",
+        "Image":"Assets/Images/What Ifs/Wishing Well.png"
+      },
+      "Video": "Assets/Videos/Wishing Well.mp4",
+      "Active": true
+    },
+    {
+      "Tags": "Projection",
+      "Project": "Tessellated Mirror Projection​",
+      "Date": "2026-02-25",
+      "Team": "Andrew Cheu, Jeff Barbieri",
+      "Tools": "TouchDesigner, Laser Projector",
+      "Materials": "TouchDesigner, ANYBEAM laser projector, 0.5 inch mirrors and 3D printed armature​",
+      "Brief": "Using parametric functions to project a source image into aligned mirrors, images are tessellated throughout a space.",
+      "What If": {
+        "Statement": "An image patterned itself across an entire room, creating a spectacle?",
+        "Brief": "Projecting a small, focused image into a mirrored sculpture reflects in many different directions, with each image appearing repeated across a given space",
+        "Image":"Assets/Images/What Ifs/Tessellated Mirror Projection.png"
+      },
+      "Video": "Assets/Videos/Tesselated Mirror Projection.mp4",
+      "Active": true
+    },
+    {
+      "Tags": "Sound, Projection",
+      "Project": "Volumetric Laser Projection",
+      "Date": "2026-02-10",
+      "Team": "Andrew Cheu, Jeff Barbieri",
+      "Tools": "TouchDesigner, Projection Mapping, Laser Projector",
+      "Materials": "TouchDesigner, ANYBEAM laser projector, Zoom H3 VR ambisonics microphone",
+      "Brief": "an exploration of content mapping, interaction, projection and suspended volumes using low-powered lasers and reflective mesh",
+      "Video": "Assets/Videos/Volumetric Laser Projection.mp4",
+      "Active": true,
+      "What If": {
+        "Statement": "What if a space could give you synesthesia?",
+        "Brief": "sounds course through a space in real time, creating colorful ripples and vibrations that invite multisensory exploration and interaction.",
+        "Image":"Assets/Images/What Ifs/Audio Reactive Laser Projection.png"
+      }
+    },
+    {
       "Tags": "Light, Gestures",
       "Project": "Floating Light Strips",
       "Date": "2026-01-07",
